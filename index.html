@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>smh0x01 | Ethical Hacker • OSCP Journey</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: Modern readable + cyberpunk touch -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 30%, #0a0105, #010008);
+            font-family: 'Inter', 'Space Mono', monospace;
+            color: #eaeef5;
+            overflow-x: hidden;
+            position: relative;
+            scroll-behavior: smooth;
+            line-height: 1.5;
+        }
+
+        /* cyberpunk grid overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, rgba(255,0,60,0.03) 0px, rgba(255,0,60,0.03) 2px, transparent 2px, transparent 8px),
+                repeating-linear-gradient(90deg, rgba(0,255,255,0.02) 0px, rgba(0,255,255,0.02) 1px, transparent 1px, transparent 10px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes borderPulse {
+            0% { border-color: #ff3366; box-shadow: 0 0 5px #ff3366; }
+            50% { border-color: #3a0ca3; box-shadow: 0 0 18px #4d0eff; }
+            100% { border-color: #d9048e; box-shadow: 0 0 8px #ff44c0; }
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* header */
+        .glitch-badge {
+            display: inline-block;
+            font-size: 0.95rem;
+            font-family: 'Space Mono', monospace;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(3px);
+            padding: 0.3rem 1.2rem;
+            border-left: 4px solid #ff004c;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+            animation: borderPulse 3s infinite;
+        }
+
+        .username {
+            color: #0ff;
+            text-shadow: 0 0 5px cyan;
+        }
+
+        /* profile section */
+        .profile-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3rem;
+            align-items: center;
+            justify-content: center;
+            margin: 3rem 0 4rem 0;
+        }
+
+        .avatar-frame {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff004c, #3a0ca3, #0ff);
+            padding: 5px;
+            box-shadow: 0 0 30px rgba(255,0,100,0.6), 0 0 15px rgba(0,255,255,0.5);
+            animation: borderPulse 2.5s infinite alternate;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            background: #0a0515;
+            border: 2px solid black;
+        }
+
+        .info-panel {
+            flex: 1;
+            min-width: 260px;
+            background: rgba(8, 0, 20, 0.55);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 0, 100, 0.5);
+            box-shadow: 0 0 25px rgba(157, 0, 255, 0.2);
+        }
+
+        .info-panel h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #ff3b6f, #9d4eff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.3px;
+        }
+
+        .tagline {
+            font-family: 'Space Mono', monospace;
+            color: #66f0ff;
+            border-bottom: 1px dashed #ff2a6d;
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding-bottom: 0.25rem;
+            font-size: 1rem;
+        }
+
+        .bio {
+            margin: 1.5rem 0;
+            line-height: 1.6;
+            color: #ddd;
+            font-weight: 400;
+        }
+
+        .badge-red {
+            background: rgba(255, 0, 50, 0.2);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            width: fit-content;
+            border-left: 3px solid #ff004c;
+            margin-top: 0.8rem;
+        }
+
+        /* Skills Section */
+        .section-title {
+            font-size: 1.9rem;
+            margin: 3rem 0 1.5rem 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 6px solid #ff3366;
+            padding-left: 20px;
+            letter-spacing: -0.2px;
+        }
+
+        .skills-cert-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(5, 0, 20, 0.4);
+            border-radius: 28px;
+            padding: 1.5rem;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 51, 102, 0.3);
+        }
+
+        .skill-item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.9rem 1.2rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 60px;
+            border-left: 4px solid;
+            transition: all 0.2s;
+        }
+        .skill-info {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .skill-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .skill-source {
+            font-size: 0.75rem;
+            background: #1a0a2e;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            color: #bb99ff;
+        }
+        .status-badge {
+            padding: 0.3rem 1rem;
+            border-radius: 60px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: monospace;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-passed {
+            background: #00aa4422;
+            border: 1px solid #00ff88;
+            color: #8affc2;
+        }
+        .status-inprogress {
+            background: #ffaa0022;
+            border: 1px solid #ffaa33;
+            color: #ffcc77;
+        }
+
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .skill-card {
+            background: rgba(15, 0, 35, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 18px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 500;
+            font-family: 'Space Mono', monospace;
+            border: 1px solid #2a0f5c;
+            transition: all 0.3s;
+            color: #d4bfff;
+        }
+        .skill-card i { color: #ff3366; margin-right: 8px; }
+        .skill-card:hover { transform: translateY(-3px); border-color: #ff3366; box-shadow: 0 0 12px #ff3366; }
+
+        /* Social */
+        .social-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin: 2rem 0 1rem;
+        }
+        .social-btn {
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(5px);
+            padding: 0.7rem 1.4rem;
+            border-radius: 40px;
+            text-decoration: none;
+            color: #e2e2ff;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            border: 1px solid #6644ff;
+            transition: 0.2s;
+        }
+        .social-btn i { font-size: 1.3rem; color: #ff3b6f; }
+        .social-btn:hover { background: #ff004c20; border-color: #0ff; box-shadow: 0 0 10px cyan; transform: scale(1.02); }
+
+        /* Projects */
+        .project-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minwidth(320px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .project-card {
+            background: rgba(2, 0, 20, 0.7);
+            border-radius: 24px;
+            padding: 1.6rem;
+            backdrop-filter: blur(8px);
+            border: 1px solid #301a6e;
+            transition: all 0.3s;
+        }
+        .project-card:hover { border-color: #f0f; box-shadow: 0 0 20px rgba(255, 0, 200, 0.3); transform: translateY(-5px); }
+        .project-card h3 {
+            color: #ff7790;
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .project-card p { font-size: 0.9rem; line-height: 1.5; color: #cbcbf5; font-weight: 400; }
+        .project-tech { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .tech-tag { font-size: 0.7rem; background: #ff336622; padding: 0.2rem 0.7rem; border-radius: 20px; color: #ffbbdd; }
+        .project-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 16px;
+            color: #0ff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 1px dashed #0ff;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .project-link-btn:hover { color: #ff6699; border-color: #ff6699; gap: 10px; }
+
+        /* Modal for project details */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: #0c0218;
+            max-width: 800px;
+            width: 90%;
+            border-radius: 32px;
+            border: 2px solid #ff3366;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 0 50px rgba(255,51,102,0.3);
+        }
+        .modal-close {
+            position: absolute;
+            top: 16px; right: 20px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #ff6699;
+        }
+        .modal-content h2 { color: #ff7790; margin-bottom: 1rem; }
+        .modal-gif-placeholder {
+            background: #110022;
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1rem 0;
+            border: 1px dashed #ff6699;
+            color: #aaa;
+        }
+        .ethical-note, footer { text-align: center; margin-top: 2rem; }
+        .ethical-note { background: rgba(55, 0, 65, 0.3); border-radius: 30px; padding: 1.5rem; border-top: 2px solid #ff3366; border-bottom: 2px solid #3a0ca3; }
+        footer { opacity: 0.7; font-size: 0.75rem; border-top: 1px solid #3a0ca3; padding-top: 2rem; margin-top: 3rem; }
+        .cursor-bling {
+            position: fixed;
+            width: 22px; height: 22px;
+            border: 1px solid cyan;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 8px #0ff;
+        }
+        @media (max-width: 780px) {
+            .container { padding: 1rem; }
+            .info-panel h1 { font-size: 1.8rem; }
+            .project-showcase { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor-bling" id="cursorBlink"></div>
+
+<div class="container">
+    <div class="glitch-badge">
+        <i class="fas fa-shield-haltered" style="color:#ff3366;"></i> 
+        USERNAME: <span class="username">smh0x01</span> :: PENETRATION TESTER | OSCP TRACK
+      
+    </div>
+
+    <!-- Profile Section with fixed image (base64 hacker style) -->
+    <div class="profile-section">
+        <div class="avatar-frame">
+            <img class="avatar-img" id="profileImg" src="Picture1.jpg" alt="smh0x01 profile">
+        </div>
+        <div class="info-panel">
+            <h1>SAYED MODASIR HASIMI</h1>
+            <div class="tagline"><i class="fas fa-terminal"></i> // RED TEAM OPERATOR // OSCP (PEN-200) CANDIDATE</div>
+            <div class="bio">Ethical Hacker & Penetration Tester. Self-studying OSCP (PEN-200) — each technique becomes a hands-on project. Passionate about AD, buffer overflows, and web exploitation. <span style="color:#0ff;">"Try Harder."</span></div>
+            <div class="badge-red"><i class="fas fa-fingerprint"></i>  @smh0x01 </div>
+        </div>
+    </div>
+
+    <!-- Social Media Accounts -->
+    <div class="social-links">
+        <a href="https://github.com/smh0x01" class="social-btn" id="githubLink"><i class="fab fa-github"></i> @smh0x01</a>
+        <a href="#" class="social-btn" id="twitterLink"><i class="fab fa-twitter"></i> @smh0x01_sec</a>
+        <a href="#" class="social-btn" id="linkedinLink"><i class="fab fa-linkedin-in"></i> in/sayed-modasir</a>
+        <a href="https://profile.hackthebox.com/profile/019dfaf4-4909-7166-a545-b4c396e06886" class="social-btn" id="hackthebox"><i class="fas fa-cube"></i> HTB: smh0x01</a>
+        <a href="https://tryhackme.com/p/smh0x01" class="social-btn" id="tryhackme"><i class="fas fa-skull"></i> THM: smh0x01</a>
+    </div>
+
+    <!-- Self-Study / Certifications Section with Icons for each program -->
+    <div class="section-title"><i class="fas fa-graduation-cap"></i> / self-study & certifications <span style="font-size:0.8rem;">[ completed / in progress ]</span></div>
+    <div class="skills-cert-grid" id="skillsContainer"></div>
+
+    <!-- Technical arsenal -->
+    <div class="skills-grid">
+        <div class="skill-card"><i class="fab fa-linux"></i> Kali / Parrot</div>
+        <div class="skill-card"><i class="fas fa-bug"></i> Metasploit</div>
+        <div class="skill-card"><i class="fas fa-database"></i> SQLMap</div>
+        <div class="skill-card"><i class="fas fa-network-wired"></i> Nmap / RustScan</div>
+        <div class="skill-card"><i class="fas fa-code"></i> Python / Bash</div>
+        <div class="skill-card"><i class="fas fa-user-secret"></i> Burp Suite</div>
+        <div class="skill-card"><i class="fas fa-shield-alt"></i> Cobalt Strike</div>
+        <div class="skill-card"><i class="fas fa-lock"></i> Binary Exploitation</div>
+    </div>
+
+    <!-- Projects Section (OSCP/PEN-200) -->
+    <div class="section-title"><i class="fas fa-project-diagram"></i> / projects </div>
+    <div class="project-showcase" id="projectsContainer"></div>
+
+    <div class="ethical-note">
+        <i class="fas fa-shield-haltered" style="font-size:1.6rem; color:#ff004c;"></i>
+        <p style="margin:10px 0 5px; font-weight:600;">[ ETHICAL HACKER MANIFESTO ]</p>
+        <p>All projects practiced in authorized environments (OffSec Labs, HTB, Proving Grounds). Responsible disclosure.</p>
+        <div style="margin-top:18px;"><i class="fas fa-envelope"></i> modasirhashimi0101@gmail.com </i> </div>
+    </div>
+    <footer><span style="color:#ff6699;">⧩ smh0x01 :: root@exploit:~$</span> // <span &copy id="year"></span> //</footer>
+</div>
+
+<!-- Modal for details -->
+<div id="projectModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" id="closeModal">&times;</span>
+        <h2 id="modalTitle">Project Title</h2>
+        <p id="modalDescription"></p>
+        <div id="modalGifArea" class="modal-gif-placeholder">
+            <i class="fas fa-video" style="font-size:2rem; color:#ff6699;"></i>
+            <p>🎥 Demo / GIF placeholder — You can embed a .gif or screenshots later.</p>
+            <button id="mockGifBtn" style="background:#3a0ca3; border:none; padding:8px 16px; border-radius:40px; margin-top:8px; color:white;"><i class="fas fa-upload"></i> Add .gif demo</button>
+        </div>
+        <div><i class="fab fa-github"></i> <strong>Repository:</strong> <a href="#" id="modalRepoLink" target="_blank" style="color:#0ff;">github.com/smh0x01/projects</a></div>
+        <button class="modal-btn" id="closeModalBtn" style="background:#ff3366; border:none; padding:0.5rem 1.2rem; border-radius:40px; margin-top:1rem; cursor:pointer;">Close</button>
+    </div>
+</div>
+
+<script>
+    // ---------- FIXED SELF-STUDY / CERTIFICATIONS WITH CUSTOM ICONS ----------
+    const skillsList = [
+        { name: "Network Basics For Hacker", source: "Hackers-Arise.com", status: "passed", icon: "fas fa-network-wired" },
+        { name: "Linux Basics For Hacker", source: "Hackers-Arise.com", status: "passed", icon: "fab fa-linux" },
+        { name: "Python Black Hat", source: "Hackers-Arise.com", status: "passed", icon: "fab fa-python" },
+        { name: "CEHv13", source: "EC-Council", status: "passed", icon: "fas fa-certificate" },
+        { name: "PWK (PEN-200) ", source: "Offensive Security", status: "inprogress", icon: "fas fa-chalkboard-user" },
+        { name: "Network Penetration Testing", source: "CBT Nuggets", status: "passed", icon: "fas fa-shield-haltered" }
+    ];
+
+    function renderSkills() {
+        const container = document.getElementById('skillsContainer');
+        if (!container) return;
+        container.innerHTML = skillsList.map(skill => `
+            <div class="skill-item" style="border-left-color: ${skill.status === 'passed' ? '#00ffaa' : '#ffaa33'}">
+                <div class="skill-info">
+                    <i class="${skill.icon}" style="color:#ff6699; width: 32px; font-size: 1.2rem;"></i>
+                    <span class="skill-name">${escapeHtml(skill.name)}</span>
+                    <span class="skill-source"><i class="fas fa-graduation-cap"></i> ${escapeHtml(skill.source)}</span>
+                </div>
+                <div class="status-badge ${skill.status === 'passed' ? 'status-passed' : 'status-inprogress'}">
+                    <i class="fas ${skill.status === 'passed' ? 'fa-check-circle' : 'fa-spinner fa-pulse'}"></i>
+                    ${skill.status === 'passed' ? '✓ PASSED' : '⚡ IN PROGRESS'}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Projects Data (OSCP focused)
+    const projectsData = [
+        { title: "Website OSINT", description: "Website OSINT with wget (full automation)", tech: ["Python"], repo: "https://github.com/smh0x01/Web_OSINT", fullDesc: "..." },
+    ];
+
+    function renderProjects() {
+        const container = document.getElementById('projectsContainer');
+        if (!container) return;
+        container.innerHTML = projectsData.map((proj, idx) => `
+            <div class="project-card">
+                <h3><i class="fas fa-skull-crossbones" style="color:#ff3366;"></i> ${escapeHtml(proj.title)}</h3>
+                <p>${escapeHtml(proj.description)}</p>
+                <div class="project-tech">${proj.tech.map(t => `<span class="tech-tag">#${escapeHtml(t)}</span>`).join('')}</div>
+                <div class="project-link-btn" data-project-index="${idx}"><i class="fab fa-github"></i> View details & repo →</div>
+            </div>
+        `).join('');
+
+        document.querySelectorAll('.project-link-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.getAttribute('data-project-index'));
+                const project = projectsData[idx];
+                openModal(project);
+            });
+        });
+    }
+
+    // Modal Handling
+    const modal = document.getElementById('projectModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDescription = document.getElementById('modalDescription');
+    const modalRepoLink = document.getElementById('modalRepoLink');
+    const gifArea = document.getElementById('modalGifArea');
+
+    function openModal(project) {
+        modalTitle.innerText = project.title;
+        modalDescription.innerText = project.fullDesc || project.description;
+        modalRepoLink.href = project.repo;
+        modalRepoLink.innerText = project.repo.replace('https://github.com/', 'github.com/');
+        gifArea.innerHTML = `<i class="fas fa-play-circle" style="font-size:2rem; color:#ff6699;"></i>
+                            <p>🎥 Demo GIF / Screencast ready to embed!<br><span style="font-size:0.75rem;">(You can replace this area with an &lt;img&gt; or video tag later)</span></p>
+                            <button id="dynamicGifBtn" style="background:#3a0ca3; border:none; padding:8px 16px; border-radius:40px; margin-top:8px; color:white;"><i class="fas fa-upload"></i> Add .gif demo</button>`;
+        const dynBtn = document.getElementById('dynamicGifBtn');
+        if(dynBtn) dynBtn.addEventListener('click', () => alert("📁 GIF placeholder: You can insert <img src='demo.gif'> or embed a video here! Perfect for showing your exploit in action."));
+        modal.style.display = 'flex';
+    }
+
+    function closeModalFn() { modal.style.display = 'none'; }
+    document.getElementById('closeModal').addEventListener('click', closeModalFn);
+    document.getElementById('closeModalBtn').addEventListener('click', closeModalFn);
+    window.addEventListener('click', (e) => { if(e.target === modal) closeModalFn(); });
+
+    // Social Links (Fixed)
+    const socials = {
+        githubLink: "https://github.com/smh0x01",
+        twitterLink: "https://twitter.com/smh0x01_sec",
+        linkedinLink: "https://linkedin.com/in/sayed-modasir-hasimi",
+        hackthebox: "https://www.hackthebox.com/users/profile/smh0x01",
+        tryhackme: "https://tryhackme.com/p/smh0x01"
+    };
+    for (const [id, url] of Object.entries(socials)) {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', (e) => { e.preventDefault(); if(confirm(`Open ${id} profile?`)) window.open(url, '_blank'); });
+    }
+
+    function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){ return m==='&'?'&amp;': m==='<'?'&lt;':'&gt;';}); }
+
+    // Cursor + Year
+    const cursor = document.getElementById('cursorBlink');
+    document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+    document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
+    document.addEventListener('mouseenter', () => cursor.style.opacity = '1');
+    document.getElementById('year').innerText = new Date().getFullYear();
+
+    renderSkills();
+    renderProjects();
+    console.log("%c[ smh0x01 ] • Portfolio Ready | Fixed profile image | Skills with icons | Project modal with GIF placeholder", "color:#ff3366; font-size:14px;");
+</script>
+</body>
+</html>
