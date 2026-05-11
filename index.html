@@ -483,18 +483,12 @@
   <!-- PROFILE SECTION with CINEMATIC AVATAR STYLE (only picture style changed) -->
   <div class="profile-hero">
     <div class="avatar-cinematic-wrapper">
-      <!-- Top badge like "MARVE / CAST STUDIOS" -->
-   
-      <!-- Glowing cinematic frame -->
       <div class="cinematic-frame">
-        <!-- REPLACE "your-photo.png" with your actual .png file name -->
         <img class="avatar-img" src="SMH_Profile.png"
              alt="SMH Profile - replace with your .png">
       </div>
-      <!-- Bottom right movie title overlay like "BLACK PANTHER" -->
-      <div class="movie-title-overlay"></i>S.M.H</div>
+      <div class="movie-title-overlay">S.M.H</div>
     </div>
-    
 
     <div class="hero-name">SAYED MODASIR HASIMI</div>
     <div class="hero-role">// RED TEAM OPERATOR // OSCP (PEN-200) CANDIDATE</div>
@@ -512,7 +506,7 @@
     </div>
   </div>
 
-  <!-- HUD GAMING STATS PANEL (unchanged) -->
+  <!-- HUD GAMING STATS PANEL -->
   <div class="hud-container">
     <div class="hud-title"><i class="fas fa-head-side-vr"></i> HEADS-UP DISPLAY // OPERATOR STATUS</div>
     <div class="stats-grid">
@@ -525,7 +519,7 @@
     <div style="font-size:0.7rem; text-align:right; margin-top: 8px; opacity:0.7;">HUD v.3.0 // red team telemetry</div>
   </div>
 
-  <!-- CORE CREDENTIALS SECTION (unchanged) -->
+  <!-- CORE CREDENTIALS SECTION -->
   <div class="section-title" id="certs">⚡ CORE EXPLOITS & CREDENTIALS</div>
   <div class="cards-grid">
     <div class="cyber-card"><div class="card-icon"><i class="fas fa-network-wired"></i></div><div class="card-title">Network Basics For Hacker</div><div class="card-desc">Hackers-Arise.com // Full packet analysis, TCP/IP warfare.</div><span class="badge-status">✓ PASSED</span></div>
@@ -540,16 +534,33 @@
     <div class="cyber-card"><div class="card-icon"><i class="fas fa-tools"></i></div><div class="card-title">Kali / Parrot Arsenal</div><div class="card-desc">Metasploit, RustScan, Cobalt Strike.</div><span class="badge-status">⚡ READY</span></div>
   </div>
 
-  <!-- PROJECT SECTION (unchanged) -->
+  <!-- PROJECT SECTION (CLEAN & MINIMAL) -->
   <div class="section-title" id="projects">📡 ACTIVE PROJECTS</div>
+
+  <!-- WebScout Project Card -->
   <div class="project-card">
-    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-      <div><i class="fas fa-search-location" style="font-size: 2rem; color: cyan;"></i><span style="font-weight: 800; font-size: 1.5rem; margin-left: 10px;">Website OSINT</span><div style="margin-top: 8px;">Full automation with wget, custom metadata extraction & passive recon.</div><div style="margin-top: 12px;"><span class="badge-status">#Python</span> <span class="badge-status">#OSINT</span></div></div>
-      <a href="#" class="btn-outline btn" style="border-radius: 30px; padding: 8px 20px;" id="repoMock"><i class="fab fa-github"></i> View details & repo →</a>
+    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+      <i class="fas fa-search-location" style="font-size: 3rem; color: cyan;"></i>
+      <div style="flex: 1; min-width: 200px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
+          <span style="font-weight: 800; font-size: 1.6rem; color: #f0fcff;">WebScout</span>
+          <span class="badge-status">#Python</span>
+          <span class="badge-status">#OSINT</span>
+          <span class="badge-status">#CLI</span>
+        </div>
+        <p style="color: #9bc4ff; font-size: 0.95rem; margin: 0;">
+          🔍 Intelligent Web File Discovery & Download Tool — Scout, Select, and Snag files from any website. Multi-threaded fuzzing, interactive filtering, resume support, and session saving built right in.
+        </p>
+      </div>
+      <a href="https://github.com/smh0x01/webscout" class="btn btn-outline" style="border-radius: 30px; padding: 10px 24px; white-space: nowrap;" target="_blank">
+        <i class="fab fa-github"></i> View on GitHub →
+      </a>
     </div>
   </div>
 
-  <!-- TOOLCHAIN (unchanged) -->
+  <!-- Add more project cards here following the same pattern -->
+
+  <!-- TOOLCHAIN -->
   <div class="skillset">
     <i class="fas fa-microchip" style="color:#0ff; margin-right: 8px;"></i> <strong>// WEAPONIZED TOOLCHAIN //</strong>
     <div class="skill-icons">
@@ -558,14 +569,14 @@
     </div>
   </div>
 
-  <!-- MANIFESTO & CONTACT (unchanged) -->
+  <!-- MANIFESTO & CONTACT -->
   <div class="manifesto" id="contact-manifesto">
     <i class="fas fa-scroll" style="font-size: 1.8rem; float: right; opacity: 0.5;"></i>
     <i class="fas fa-shield-alt" style="color:#0ff;"></i> <strong style="font-size: 1.2rem;">[ ETHICAL HACKER MANIFESTO ]</strong>
     <p style="margin-top: 12px;">All projects practiced in authorized environments (OffSec Labs, HTB, Proving Grounds). Responsible disclosure. Every technique becomes a hands-on project — "Try Harder".</p>
     <div style="margin-top: 1.2rem; border-top: 1px dashed #0ff33; padding-top: 12px;">
-      <i class="fas fa-envelope"></i> modasirhashimi0101@gmail.com   |  
-      <i class="fab fa-twitter"></i> @smh0x01   |  
+      <i class="fas fa-envelope"></i> modasirhashimi0101@gmail.com   |  
+      <i class="fab fa-twitter"></i> @smh0x01   |  
       <i class="fab fa-github"></i> /smh0x01
     </div>
   </div>
@@ -580,7 +591,7 @@
   document.getElementById('twitterLink')?.addEventListener('click', (e) => { e.preventDefault(); alert("🐦 Twitter: @smh0x01 — follow for cyber updates & OSCP journey"); });
   document.getElementById('githubLink')?.addEventListener('click', (e) => { e.preventDefault(); alert("📁 GitHub: /smh0x01 — repositories include OSINT tools, red team scripts."); });
   document.getElementById('emailLink')?.addEventListener('click', (e) => { e.preventDefault(); alert("📧 modasirhashimi0101@gmail.com — professional inquiries only."); });
-  document.getElementById('repoMock')?.addEventListener('click', (e) => { e.preventDefault(); alert("🔍 Website OSINT private repo: full wget automation & metadata extraction."); });
+  // The old repoMock alert removed – buttons now link directly to real repo
   document.querySelectorAll('.btn-primary, .btn-outline').forEach(btn => {
     if(btn.getAttribute('href')?.startsWith('#')) {
       btn.addEventListener('click', (e) => { e.preventDefault(); const target = document.querySelector(btn.getAttribute('href')); if(target) target.scrollIntoView({ behavior: 'smooth' }); });
