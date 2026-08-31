@@ -316,7 +316,7 @@
         
         .hero-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1.2fr 0.8fr; /* Adjusted ratio for text vs image */
             gap: var(--space-2xl);
             width: 100%;
             align-items: center;
@@ -436,115 +436,123 @@
             border-color: var(--accent-bright);
         }
         
-        /* Hero Visual */
+        /* Hero Visual (Profile Picture HUD) */
         .hero-visual {
             position: relative;
-            height: 500px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
         }
         
-        .visual-container {
+        .profile-container {
             position: relative;
             width: 100%;
-            height: 100%;
+            aspect-ratio: 4 / 5; /* Portrait aspect ratio */
             background: var(--bg-panel);
             border: 1px solid var(--border-color);
             overflow: hidden;
+            transition: var(--transition-slow);
         }
-        
-        .visual-grid {
+
+        .profile-container::after {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: 
-                linear-gradient(rgba(34, 34, 34, 0.5) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(34, 34, 34, 0.5) 1px, transparent 1px);
-            background-size: 20px 20px;
-            opacity: 0.3;
+            background: linear-gradient(135deg, transparent 0%, rgba(5,5,5,0.4) 100%);
+            z-index: 2;
+            pointer-events: none;
         }
         
-        .visual-radar {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            height: 300px;
-            border: 1px solid var(--accent-red);
-            border-radius: 50%;
-            opacity: 0.3;
+        .profile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(30%) contrast(110%) brightness(90%);
+            transition: var(--transition-slow);
         }
         
-        .visual-radar::before, .visual-radar::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 1px solid var(--accent-red);
-            border-radius: 50%;
-            opacity: 0.5;
+        .profile-container:hover .profile-img {
+            filter: grayscale(0%) contrast(100%) brightness(100%);
+            transform: scale(1.03);
         }
-        
-        .visual-radar::before {
-            width: 200px;
-            height: 200px;
-        }
-        
-        .visual-radar::after {
-            width: 100px;
-            height: 100px;
-        }
-        
-        .visual-scan {
+
+        /* Scan line over profile */
+        .profile-scan {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                var(--accent-red) 50%, 
-                transparent 100%);
-            animation: scanVertical 4s linear infinite;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .profile-scan::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent 0%, rgba(229, 9, 20, 0.8) 50%, transparent 100%);
+            box-shadow: 0 0 10px var(--accent-red);
+            animation: scanProfile 4s linear infinite;
             opacity: 0.7;
         }
-        
-        @keyframes scanVertical {
-            0% { top: 0; }
+
+        @keyframes scanProfile {
+            0% { top: 0%; }
             100% { top: 100%; }
         }
-        
-        .visual-text {
+
+        /* HUD Corners */
+        .hud-bracket {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            width: 25px;
+            height: 25px;
+            border-color: var(--accent-red);
+            border-style: solid;
+            z-index: 3;
+            transition: var(--transition-base);
+        }
+        .profile-container:hover .hud-bracket {
+            width: 35px;
+            height: 35px;
+        }
+        .br-tl { top: 10px; left: 10px; border-width: 2px 0 0 2px; }
+        .br-tr { top: 10px; right: 10px; border-width: 2px 2px 0 0; }
+        .br-bl { bottom: 10px; left: 10px; border-width: 0 0 2px 2px; }
+        .br-br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; }
+
+        .profile-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 20px;
+            background: linear-gradient(to top, rgba(5,5,5,0.95) 0%, transparent 100%);
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .profile-info {
             font-family: var(--font-mono);
             font-size: 0.7rem;
             color: var(--text-secondary);
-            opacity: 0.7;
+            line-height: 1.5;
         }
-        
-        .visual-text-right {
-            left: auto;
-            right: 20px;
-            text-align: right;
-        }
-        
-        .visual-coordinates {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
+        .profile-info span {
             color: var(--accent-red);
-            opacity: 0.7;
+            display: block;
+            font-size: 0.8rem;
+            margin-bottom: 2px;
         }
-        
+
         /* Section Styles */
         .section {
             padding: var(--space-3xl) 0;
@@ -1290,10 +1298,20 @@
             .hero-grid {
                 grid-template-columns: 1fr;
                 gap: var(--space-xl);
+                text-align: center;
+            }
+
+            .hero-content {
+                align-items: center;
+            }
+
+            .hero-label {
+                justify-content: center;
             }
             
             .hero-visual {
-                height: 300px;
+                max-width: 300px;
+                order: -1; /* Move image to top on mobile */
             }
             
             .about-grid,
@@ -1320,6 +1338,7 @@
             .hero-cta {
                 flex-direction: column;
                 gap: var(--space-sm);
+                width: 100%;
             }
             
             .btn {
@@ -1350,7 +1369,7 @@
                 transition-duration: 0.01ms !important;
             }
             
-            .scan-line {
+            .scan-line, .profile-scan {
                 display: none;
             }
         }
@@ -1406,13 +1425,24 @@
                     </div>
                 </div>
                 <div class="hero-visual">
-                    <div class="visual-container">
-                        <div class="visual-grid"></div>
-                        <div class="visual-radar"></div>
-                        <div class="visual-scan"></div>
-                        <div class="visual-coordinates">34.6937° N // 69.1705° E</div>
-                        <div class="visual-text">TARGET: ADVERSARY EMULATION<br>STATUS: ACTIVE<br>METHODOLOGY: MITRE ATT&CK</div>
-                        <div class="visual-text visual-text-right">SCAN: 00:24:18<br>ENTRIES: 1,247<br>RISK: ELEVATED</div>
+                    <div class="profile-container">
+                        <div class="hud-bracket br-tl"></div>
+                        <div class="hud-bracket br-tr"></div>
+                        <div class="hud-bracket br-bl"></div>
+                        <div class="hud-bracket br-br"></div>
+                        
+                        <!-- Profile image with fallback -->
+                        <img src="profile.jpg" alt="Sayed Modasir Hasimi - SMH0x01" class="profile-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x500/0A0A0A/E50914?text=SMH0x01';">
+                        
+                        <div class="profile-scan"></div>
+                        
+                        <div class="profile-overlay">
+                            <div class="profile-info">
+                                <span>ID: SMH0x01</span>
+                                CLEARANCE: LEVEL 9<br>
+                                FOCUS: ADVERSARY EMULATION
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1795,42 +1825,42 @@
             </div>
             <div class="knowledge-grid">
                 <div class="knowledge-card">
-                    <div class="knowledge-icon">🌐</div>
+                    <div class="knowledge-icon"></div>
                     <h3 class="knowledge-title">NETWORK SECURITY</h3>
                     <p class="knowledge-description">Infrastructure penetration testing and network attack vectors</p>
                 </div>
                 <div class="knowledge-card">
-                    <div class="knowledge-icon">🔒</div>
+                    <div class="knowledge-icon"></div>
                     <h3 class="knowledge-title">WEB SECURITY</h3>
                     <p class="knowledge-description">Web application penetration testing and vulnerability assessment</p>
                 </div>
                 <div class="knowledge-card">
-                    <div class="knowledge-icon">🏢</div>
+                    <div class="knowledge-icon"></div>
                     <h3 class="knowledge-title">ACTIVE DIRECTORY</h3>
                     <p class="knowledge-description">AD attacks, enumeration, and attack path mapping</p>
                 </div>
                 <div class="knowledge-card">
-                    <div class="knowledge-icon">🐧</div>
+                    <div class="knowledge-icon"></div>
                     <h3 class="knowledge-title">LINUX</h3>
                     <p class="knowledge-description">Linux exploitation, privilege escalation, and hardening</p>
                 </div>
                 <div class="knowledge-card">
-                    <div class="knowledge-icon">🪟</div>
+                    <div class="knowledge-icon"></div>
                     <h3 class="knowledge-title">WINDOWS</h3>
                     <p class="knowledge-description">Windows exploitation, AD attacks, and post-exploitation</p>
                 </div>
                 <div class="knowledge-card">
-                    <div class="knowledge-icon">📡</div>
+                    <div class="knowledge-icon"></div>
                     <h3 class="knowledge-title">WIRELESS</h3>
                     <p class="knowledge-description">Wireless network security and attack methodologies</p>
                 </div>
                 <div class="knowledge-card">
-                    <div class="knowledge-icon">🔍</div>
+                    <div class="knowledge-icon"></div>
                     <h3 class="knowledge-title">OSINT</h3>
                     <p class="knowledge-description">Open source intelligence and reconnaissance</p>
                 </div>
                 <div class="knowledge-card">
-                    <div class="knowledge-icon">🐍</div>
+                    <div class="knowledge-icon"></div>
                     <h3 class="knowledge-title">PYTHON / BASH</h3>
                     <p class="knowledge-description">Custom tooling and automation development</p>
                 </div>
@@ -1853,7 +1883,7 @@
                 <div>
                     <ul class="teaching-features">
                         <li class="teaching-feature">
-                            <span class="feature-icon">🎯</span>
+                            <span class="feature-icon"></span>
                             <span class="feature-text">Practical Ethical Hacking Instruction</span>
                         </li>
                         <li class="teaching-feature">
@@ -1913,7 +1943,7 @@
                             <span class="channel-icon">📧</span>
                             <div class="channel-info">
                                 <div class="channel-label">EMAIL</div>
-                                <div class="channel-value">smh0x01@protonmail.com</div>
+                                <div class="channel-value">modasirhashimi0101@gmail.com</div>
                             </div>
                         </li>
                         <li class="contact-channel">
@@ -1926,8 +1956,8 @@
                         <li class="contact-channel">
                             <span class="channel-icon">💼</span>
                             <div class="channel-info">
-                                <div class="channel-label">LINKEDIN</div>
-                                <div class="channel-value">linkedin.com/in/smh0x01</div>
+                                <div class="channel-label">phone</div>
+                                <div class="channel-value">+93 744-20-57-60</div>
                             </div>
                         </li>
                         <li class="contact-channel">
@@ -1941,7 +1971,7 @@
                             <span class="channel-icon">📺</span>
                             <div class="channel-info">
                                 <div class="channel-label">YOUTUBE</div>
-                                <div class="channel-value">YouTube.com/@smh0x01</div>
+                                <div class="channel-value">YouTube.com/@Silent_knights01</div>
                             </div>
                         </li>
                     </ul>
@@ -1949,7 +1979,7 @@
                 <div class="contact-cta">
                     <h3 class="cta-title">INITIATE CONTACT</h3>
                     <p class="cta-description">For penetration testing engagements, red team operations, security consulting, or educational collaborations.</p>
-                    <a href="mailto:smh0x01@protonmail.com" class="btn btn-primary">ESTABLISH SECURE CHANNEL</a>
+                    <a href="mailto:modasirhashimi0101@gmail.com" class="btn btn-primary">ESTABLISH SECURE CHANNEL</a>
                 </div>
             </div>
         </section>
@@ -1965,24 +1995,26 @@
     </footer>
     
     <script>
-        // Boot sequence
-        window.addEventListener('load', () => {
-            const boot = document.getElementById('boot');
-            setTimeout(() => {
+        // Boot sequence - Robust approach using setTimeout to avoid getting stuck
+        setTimeout(function() {
+            var boot = document.getElementById('boot');
+            if (boot) {
                 boot.classList.add('hide');
-                setTimeout(() => {
+                setTimeout(function() {
                     boot.style.display = 'none';
                 }, 500);
-            }, 1500);
-        });
+            }
+        }, 1500);
         
         // Navigation
         const menuToggle = document.getElementById('menuToggle');
         const navMenu = document.getElementById('navMenu');
         
-        menuToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-        });
+        if(menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+            });
+        }
         
         // Close menu on link click
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -2007,14 +2039,14 @@
             
             navLinks.forEach(link => {
                 link.classList.remove('active');
-                if (link.getAttribute('href').substring(1) === current) {
+                if (link.getAttribute('href') && link.getAttribute('href').substring(1) === current) {
                     link.classList.add('active');
                 }
             });
         });
         
         // Scroll reveal animation
-        const revealElements = document.querySelectorAll('.section, .status-card, .project-card, .knowledge-card, .methodology-step, .arsenal-category, .credential-item');
+        const revealElements = document.querySelectorAll('.section, .status-card, .project-card, .knowledge-card, .methodology-step, .arsenal-category, .credential-item, .profile-container');
         
         const revealOnScroll = () => {
             revealElements.forEach(element => {
@@ -2033,9 +2065,9 @@
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
-                e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
+                if(target) {
+                    e.preventDefault();
                     target.scrollIntoView({
                         behavior: 'smooth',
                         block: 'start'
@@ -2045,7 +2077,7 @@
         });
         
         // Reduced motion support
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             document.querySelectorAll('.scan-line').forEach(el => el.style.display = 'none');
         }
     </script>
