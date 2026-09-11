@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RED TEAM SPECIALIST ASSESSMENT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ---------- توکن‌های طراحی (طبق بخش ۲۴ مشخصات) ---------- */
+:root{
+  --bg:#0B0B0F; --panel:#15151F; --panel2:#101018; --line:#23232E; --line2:#2E2E3A;
+  --red:#E31E27; --red-dim:#8f141a; --ok:#4CAF7D; --gray:#999A93; --white:#F8F8F8;
+  --mono:'JetBrains Mono',monospace; --sans:'Space Grotesk',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:56px 56px;opacity:.14}
+#bg{position:fixed;inset:0;z-index:0;opacity:.5}
+.mono{font-family:var(--mono)}
+::selection{background:var(--red);color:#fff}
+::-webkit-scrollbar{width:10px}::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:5px}
+
+/* ---------- هدر و نوار پیشرفت ---------- */
+header{position:sticky;top:0;z-index:50;background:rgba(11,11,15,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.hd-in{max-width:1180px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--white);white-space:nowrap}
+.brand b{color:var(--red)}
+.stages{display:flex;gap:0;flex:1;justify-content:center;overflow:hidden}
+.stg{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:#55555f;padding:5px 12px;position:relative;white-space:nowrap}
+.stg+.stg::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:1px;height:12px;background:var(--line2)}
+.stg.cur{color:var(--red)}.stg.cur::after{content:'';position:absolute;left:12px;right:12px;bottom:0;height:2px;background:var(--red)}
+.stg.done{color:var(--gray)}.stg.done::after{content:'✓';margin-left:5px;color:var(--ok)}
+.hd-r{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:10px}
+#saveDot{color:var(--ok);opacity:0;transition:opacity .4s}
+#saveDot.on{opacity:1}
+.adm-link{color:var(--gray);text-decoration:none;letter-spacing:.12em;border:1px solid var(--line2);padding:5px 10px;transition:.2s}
+.adm-link:hover{color:var(--white);border-color:var(--gray)}
+
+/* ---------- چیدمان عمومی ---------- */
+main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:34px 20px 90px}
+.wrap{max-width:860px;margin:0 auto}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:26px 28px;position:relative}
+.panel.acc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--red);border-radius:6px 6px 0 0}
+.sec-label{font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--red);margin-bottom:10px}
+.sec-label.g{color:var(--gray)}
+h1{font-size:clamp(30px,5vw,52px);font-weight:700;line-height:1.04;letter-spacing:-.01em}
+h2{font-size:clamp(20px,3vw,28px);font-weight:600}
+p.lead{color:var(--gray);font-size:15px;line-height:1.65}
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;
+  padding:14px 26px;border:1px solid var(--red);background:var(--red);color:#fff;cursor:pointer;border-radius:3px;
+  transition:.18s;text-transform:uppercase}
+.btn:hover{background:#c1161e;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;color:var(--white);border-color:var(--line2)}
+.btn.ghost:hover{border-color:var(--gray);background:rgba(255,255,255,.03)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn.sm{padding:9px 16px;font-size:10px}
+.term{font-family:var(--mono);font-size:12px;color:var(--gray);line-height:1.8}
+.term .p{color:var(--red)}
+.tag{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;padding:3px 8px;border:1px solid var(--line2);color:var(--gray);border-radius:2px}
+.tag.red{border-color:var(--red-dim);color:#ff7b81;background:rgba(227,30,39,.07)}
+.tag.ok{border-color:#2b5c42;color:var(--ok);background:rgba(76,175,125,.07)}
+.tag.wh{border-color:var(--gray);color:var(--white)}
+
+/* ---------- ورودی‌ها ---------- */
+label.fl{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--gray);margin:18px 0 7px}
+label.fl b{color:var(--red)}
+input[type=text],select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line2);color:var(--white);
+  font-family:var(--mono);font-size:13px;padding:12px 14px;border-radius:3px;outline:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--red)}
+textarea{resize:vertical;min-height:90px;line-height:1.6}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--mono);font-size:11px;padding:8px 13px;border:1px solid var(--line2);color:var(--gray);
+  cursor:pointer;border-radius:3px;transition:.15s;user-select:none}
+.chip:hover{border-color:var(--gray);color:var(--white)}
+.chip.on{border-color:var(--red);color:#ff8d93;background:rgba(227,30,39,.08)}
+
+/* ---------- گزینه‌های آزمون ---------- */
+.opts{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+.opt{border:1px solid var(--line2);border-radius:4px;padding:15px 17px;cursor:pointer;transition:.15s;display:flex;gap:13px;align-items:flex-start;background:var(--panel2)}
+.opt:hover{border-color:var(--gray)}
+.opt.sel{border-color:var(--red);background:rgba(227,30,39,.07)}
+.opt .mk{font-family:var(--mono);font-size:11px;color:var(--gray);border:1px solid var(--line2);width:24px;height:24px;min-width:24px;display:flex;align-items:center;justify-content:center;border-radius:3px;margin-top:1px}
+.opt.sel .mk{border-color:var(--red);color:var(--red)}
+.opt .tx{font-size:14px;line-height:1.55;color:#d6d6d2}
+.opt.sel .tx{color:var(--white)}
+.navrow{display:flex;justify-content:space-between;align-items:center;margin-top:26px;gap:12px;flex-wrap:wrap}
+.qmeta{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--gray);display:flex;gap:16px}
+
+/* ---------- نوارها و متریک‌ها ---------- */
+.barrow{display:grid;grid-template-columns:190px 1fr 62px;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.barrow:last-child{border-bottom:0}
+.bl{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--gray)}
+.btrack{height:5px;background:var(--panel2);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.bfill{height:100%;background:var(--gray);transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.bfill.red{background:var(--red)}.bfill.ok{background:var(--ok)}
+.bv{font-family:var(--mono);font-size:12px;color:var(--white);text-align:right}
+.statgrid{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.stat{flex:1 1 140px;padding:18px 20px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--panel)}
+.stat .n{font-family:var(--mono);font-size:26px;font-weight:700}
+.stat .l{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--gray);margin-top:4px}
+
+/* ---------- لیست تخصص‌ها ---------- */
+.specrow{border:1px solid var(--line);border-radius:5px;margin-bottom:9px;background:var(--panel);overflow:hidden;transition:border .2s}
+.specrow:hover{border-color:var(--line2)}
+.specrow.open{border-color:var(--red-dim)}
+.spec-hd{display:flex;align-items:center;gap:16px;padding:15px 18px;cursor:pointer;user-select:none}
+.spec-hd .no{font-family:var(--mono);font-size:11px;color:var(--gray);width:26px}
+.spec-hd .nm{font-size:15px;font-weight:600;flex:1}
+.spec-hd .int{font-family:var(--mono);font-size:9px;letter-spacing:.12em;border:1px solid var(--line2);color:var(--gray);padding:5px 11px;border-radius:3px;cursor:pointer;transition:.15s;white-space:nowrap}
+.spec-hd .int:hover{border-color:var(--red);color:#ff8d93}
+.spec-hd .int.on{border-color:var(--red);color:#fff;background:var(--red)}
+.spec-bd{max-height:0;overflow:hidden;transition:max-height .35s ease;border-top:0 solid var(--line)}
+.specrow.open .spec-bd{max-height:520px;border-top:1px solid var(--line)}
+.spec-bd-in{padding:18px 22px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.spec-bd h4{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--red);margin-bottom:7px}
+.spec-bd p{font-size:12.5px;line-height:1.65;color:#c9c9c4}
+.traits{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+@media(max-width:700px){.spec-bd-in{grid-template-columns:1fr}.barrow{grid-template-columns:120px 1fr 50px}}
+
+/* ---------- گزارش / تلگرام ---------- */
+.rolecard{border:1px solid var(--line);border-radius:6px;padding:22px 24px;background:var(--panel);position:relative}
+.rolecard.primary{border-color:var(--red)}
+.rolecard .rk{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--gray)}
+.rolecard .rn{font-size:20px;font-weight:700;margin:8px 0 4px}
+.rolecard .rf{font-family:var(--mono);font-size:26px;color:var(--red)}
+.tgprev{background:#0e1621;border:1px solid var(--line);border-radius:10px;padding:16px 18px;font-size:13px;line-height:1.8;white-space:pre-wrap;font-family:var(--mono)}
+.flowline{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--gray)}
+.flowline .st{padding:5px 10px;border:1px solid var(--line2);border-radius:3px}
+.flowline .st.hit{border-color:var(--red);color:var(--red)}
+.flowline .ar{color:#44444f}
+
+/* ---------- ادمین ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--gray);text-align:left;padding:11px 12px;border-bottom:1px solid var(--line2);cursor:pointer;user-select:none;white-space:nowrap}
+.tbl th:hover{color:var(--white)}
+.tbl td{padding:12px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:#cfcfca}
+.tbl tr.rrow{cursor:pointer;transition:.15s}
+.tbl tr.rrow:hover td{background:rgba(255,255,255,.03)}
+.drawer{position:fixed;top:0;right:-560px;width:min(540px,100vw);height:100vh;background:var(--panel);border-left:1px solid var(--line2);z-index:80;transition:right .3s ease;overflow-y:auto;padding:28px}
+.drawer.open{right:0}
+.dimgrid{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+
+/* ---------- توست ---------- */
+#toasts{position:fixed;bottom:22px;left:22px;z-index:200;display:flex;flex-direction:column;gap:9px}
+.toast{background:var(--panel);border:1px solid var(--line2);border-left:3px solid var(--red);padding:13px 18px;border-radius:4px;
+  font-family:var(--mono);font-size:11.5px;color:var(--white);max-width:340px;animation:tin .3s ease}
+.toast.ok{border-left-color:var(--ok)}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.fadein{animation:fin .45s ease}
+@keyframes fin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media(max-width:900px){.stages{display:none}.stat{flex:1 1 110px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<header>
+  <div class="hd-in">
+    <div class="brand mono"><b>RT/</b>ASSESS</div>
+    <nav class="stages" id="stages"></nav>
+    <div class="hd-r">
+      <span id="saveDot">● SAVED</span>
+      <a href="#" class="adm-link" onclick="go('admin');return false">ADMIN</a>
+    </div>
+  </div>
+</header>
+<main id="app"></main>
+<div id="toasts"></div>
+
+<script>
+/* =====================================================================
+   RED TEAM SPECIALIST ASSESSMENT — نسخهٔ تک‌فایل کاملاً کارکردی
+   این نسخه، لایهٔ سرور (بخش ۲۱/۲۹ spec) را با «دیتابیس محلی» شبیه‌سازی
+   می‌کند: ذخیرهٔ هر پاسخ بلافاصله، session token، و لاگ تلگرام.
+   در پروداکشن: Next.js + FastAPI + PostgreSQL + JWT طبق بخش ۲۹.
+===================================================================== */
+'use strict';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const now=()=>new Date().toISOString();
+const uid=()=>'RT-'+Math.random().toString(36).slice(2,6).toUpperCase()+String(Date.now()).slice(-3);
+function toast(m,ok){const t=document.createElement('div');t.className='toast'+(ok?' ok':'');t.textContent=m;$('#toasts').appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),400)},3400)}
+function flashSaved(){const d=$('#saveDot');d.classList.add('on');clearTimeout(flashSaved._t);flashSaved._t=setTimeout(()=>d.classList.remove('on'),1400)}
+
+/* ---------- ۲. بانک هویت تخصص‌ها (بخش ۵/۶) ---------- */
+const SPECS=[
+{id:'rto', n:'Red Team Operator', f:'Full-scope adversary emulation: planning and executing multi-stage covert operations against live defenses — from initial access to crown-jewel objectives.', sc:'You hold quiet foothold for two weeks, pivot laterally while blue team hunts you, and reach the objective without triggering response.', t:['patience','tradecraft','adaptability','deep networking + AD'], dims:['persistence','adaptability','problem_solving'], areas:['Networking','Linux','Active Directory','Exploitation']},
+{id:'pt', n:'Penetration Tester', f:'Breadth across infrastructure, network and applications within defined scopes — find real, exploitable risk and communicate it clearly.', sc:'A scoped two-week engagement: map the environment, chain low findings into a domain compromise, then write the report the client acts on.', t:['methodology','breadth','communication','prioritization'], dims:['problem_solving','analytical','learning'], areas:['Networking','Linux','Windows','Web Security','Exploitation']},
+{id:'web', n:'Web / API Pentester + Bug Bounty', f:'Deep application-layer offense: business-logic abuse, authentication and authorization flaws, API misuse, and high-signal recon at scale.', sc:'A thick-client leaks an internal API. You map undocumented endpoints, find object-level authorization gaps, and chain them to account takeover.', t:['persistence','attention to detail','HTTP mastery','automation'], dims:['analytical','research','curiosity'], areas:['Web Security','Programming','Networking']},
+{id:'ad', n:'Active Directory / Windows Operator', f:'Identity-focused offense: Kerberos abuse, ACL attack paths, delegation flaws and domain escalation in Windows enterprise estates.', sc:'You land on a workstation with no privileges. Through ACL misconfigurations and Kerberoasting you reach DA in four quiet steps.', t:['Windows internals','graph thinking','enumeration discipline'], dims:['analytical','persistence','research'], areas:['Windows','Active Directory','Networking']},
+{id:'osint', n:'OSINT / Recon Specialist', f:'Passive intelligence: mapping people, infrastructure and exposure before a packet touches the target — then turning noise into actionable targeting.', sc:'From one corporate email you reconstruct the org chart, remote-access portals, leaked credentials and a supplier with VPN trust.', t:['research obsession','correlation','analyst OPSEC'], dims:['research','curiosity','persistence'], areas:['OSINT','Networking']},
+{id:'cloud', n:'Cloud Red Teamer', f:'Offense in AWS/Azure/GCP: IAM escalation chains, token abuse, cross-account trust exploitation and identity perimeter bypass.', sc:'A SSRF in an internal tool reaches the metadata service; the assumed role can PassRole — you escalate to org-wide admin without touching a single VM.', t:['IAM depth','architecture thinking','automation'], dims:['analytical','curiosity','learning'], areas:['Cloud','Linux','Programming']},
+{id:'xdev', n:'Exploit Dev / Vulnerability Research', f:'Finding and weaponizing the unknown: memory corruption, fuzzing at scale, patch diffing and reliable exploit chains against hardened targets.', sc:'A crasher from your fuzzer is a heap overflow in a browser IPC path. Months later it is a full sandbox-escape chain with reliable primitives.', t:['low-level mastery','ruthless persistence','creativity'], dims:['analytical','creativity','persistence'], areas:['Programming','Exploitation','Reverse Engineering']},
+{id:'rev', n:'Reverse Engineering / Malware Research', f:'Understanding binaries you have no source for: static and dynamic analysis, unpacking, protocol recovery and threat actor tooling analysis.', sc:'A packed loader with no strings lands on your desk. In two days you recover the C2 protocol, config schema and a new persistence trick.', t:['patience','pattern recognition','assembly fluency'], dims:['analytical','curiosity','persistence'], areas:['Reverse Engineering','Programming','Windows']},
+{id:'c2', n:'C2 / Offensive Tool Developer', f:'Building the operator\'s toolkit: implants, tasking, redirector chains, malleable profiles and tooling that survives real defenses.', sc:'Your implant must sit dormant behind a strict proxy for 30 days, update itself, and never fingerprint — because detection burns the whole operation.', t:['software engineering','evasion thinking','reliability mindset'], dims:['creativity','problem_solving','learning'], areas:['Programming','Networking','Linux']},
+{id:'se', n:'Social Engineering / Phishing Specialist', f:'Human-layer offense done ethically: pretext engineering, controlled phishing campaigns, vishing and measuring organizational resilience.', sc:'Your pretext as IT support survives two verification questions; the badge you request opens the server room — all pre-approved in the ROE.', t:['empathy + acting','pretext craft','strict ethics'], dims:['creativity','adaptability','curiosity'], areas:['OSINT','Networking']},
+{id:'mob', n:'Mobile Security / Mobile Pentester', f:'Android and iOS offense: runtime instrumentation, storage and IPC flaws, TLS pinning bypass and platform security model abuse.', sc:'A banking app hides logic in native code; with Frida you trace the transaction signer and prove a replayable transfer request.', t:['platform internals','dynamic instrumentation','detail focus'], dims:['analytical','research','learning'], areas:['Mobile','Programming','Web Security']},
+{id:'wifi', n:'Wireless / RF Security Specialist', f:'Attacking the air layer: WPA2/WPA3 weaknesses, rogue and evil-twin access points, SDR-driven signal analysis and RF protocol abuse.', sc:'From the parking lot you deploy an evil twin, harvest domain credentials against WPA2-Enterprise and pivot straight into the internal VLAN.', t:['radio curiosity','protocol depth','field craft'], dims:['curiosity','analytical','research'], areas:['Wireless','Networking','Linux']},
+{id:'iot', n:'IoT / Hardware Security Specialist', f:'Attacking the physical layer: UART/JTAG access, firmware extraction and analysis, embedded Linux hardening gaps and RF replay.', sc:'Four solder points and a 115200 baud console later, you have root on the smart lock — and its firmware ships a hardcoded support account.', t:['hardware hands-on','firmware analysis','tinkering drive'], dims:['curiosity','creativity','persistence'], areas:['Hardware/IoT','Reverse Engineering','Wireless','Linux']}
+];
+const specById=id=>SPECS.find(s=>s.id===id);
+
+/* ---------- ۷. سنجش طرز فکر — ۵ سؤال × ۳ نسخه (بخش ۷) ---------- */
+const MINDSET=[
+{dim:'analytical', vs:[
+ {s:'Three hours into an engagement, your exploit crashes the target service — but only on the third request in a row. It never fails on the first two.', o:[
+  {t:'Diff the three requests byte by byte and form a hypothesis about what state changes before crashing.',s:{analytical:3,problem_solving:2}},
+  {t:'Fire it repeatedly with slight variations until you find a reliable pattern by trial and error.',s:{persistence:2,problem_solving:1}},
+  {t:'Note it as "unreliable" in your notes and move to a different attack surface.',s:{persistence:1,adaptability:1}},
+  {t:'Search for public writeups about this exact service behavior and replicate what worked for others.',s:{research:2,learning:1}}]},
+ {s:'Your manual enumeration says a host runs an old VPN gateway, but the client\'s asset dashboard lists it as fully patched. The discrepancy blocks your next step.', o:[
+  {t:'Fingerprint it independently (banners, TLS cert, behavior) and reconcile the evidence before deciding.',s:{analytical:3,research:1}},
+  {t:'Trust the client dashboard — their records should be more current than your guesses.',s:{analytical:0}},
+  {t:'Attack both assumptions: run checks that only succeed on the unpatched version.',s:{problem_solving:2,analytical:2}},
+  {t:'Email the client immediately and wait for confirmation before proceeding.',s:{persistence:1}}]},
+ {s:'A payload that works perfectly on staging silently fails in production with an identical build number.', o:[
+  {t:'Compare environments systematically: configs, headers, WAF, middleware — one variable at a time.',s:{analytical:3,problem_solving:2}},
+  {t:'Assume the production WAF is the cause and jump straight to encoding bypasses.',s:{problem_solving:1,creativity:1}},
+  {t:'Retry the same payload several times — production can be flaky.',s:{analytical:0}},
+  {t:'Rebuild the payload from scratch using a different technique you know less about, to learn it.',s:{learning:2,adaptability:2}}]}]},
+{dim:'persistence', vs:[
+ {s:'You are six days into a two-week engagement. Every obvious door is closed and you have found nothing notable on your entire scope.', o:[
+  {t:'Go back to day-one reconnaissance with fresh eyes and re-enumerate deeper layers you skimmed.',s:{persistence:3,research:2}},
+  {t:'Ask the client to expand the scope — clearly there is nothing here.',s:{persistence:0}},
+  {t:'Pick the least-examined asset and commit a full day to it, no matter how boring.',s:{persistence:3,analytical:1}},
+  {t:'Write up what you have honestly; a thin report is still an honest report.',s:{adaptability:1}}]},
+ {s:'On a bug bounty program, every finding you hunt has a duplicate submitted hours before you — three times in a row this week.', o:[
+  {t:'Study what the successful hunters do differently and pick targets with less competition but real logic depth.',s:{learning:2,research:2,adaptability:2}},
+  {t:'Grind faster on the same high-traffic targets — speed will eventually win.',s:{persistence:2}},
+  {t:'Take a break from that program; maybe bounty hunting is not for you.',s:{persistence:0}},
+  {t:'Automate your own monitoring for new assets so you are first next time.',s:{creativity:2,problem_solving:2,learning:1}}]},
+ {s:'You are reversing a binary and have been stuck on the same obfuscated routine for two evenings.', o:[
+  {t:'Switch approaches: run it dynamically, trace what it touches, and let behavior explain the code.',s:{adaptability:2,problem_solving:2,persistence:1}},
+  {t:'Keep reading the assembly linearly until it makes sense — brute patience wins.',s:{persistence:3}},
+  {t:'Skip the routine entirely; it probably does nothing important.',s:{persistence:0}},
+  {t:'Document exactly what you understand so far, then return tomorrow with a clear head.',s:{persistence:2,learning:2}}]}]},
+{dim:'curiosity', vs:[
+ {s:'A scan shows an unnamed service on port 8443 with a banner that matches nothing in any database you know.', o:[
+  {t:'Manually interact with it: raw connections, odd verbs, observe every byte of its behavior.',s:{curiosity:3,research:1}},
+  {t:'Mark it as unknown and exclude it — unidentified services are usually noise.',s:{curiosity:0}},
+  {t:'Research the fingerprint across security forums and vendor docs before touching it.',s:{research:3,curiosity:2}},
+  {t:'Run a full automated vulnerability scan against it and move on.',s:{persistence:1}}]},
+ {s:'While reviewing a client\'s public DNS, you notice a strange TXT record that looks like base64 and no one at the client recognizes it.', o:[
+  {t:'Decode it, trace which name server set it, and build a timeline — you want the whole story.',s:{curiosity:3,analytical:2}},
+  {t:'Report it as an anomaly and let the client investigate the meaning.',s:{persistence:1}},
+  {t:'Ignore it — TXT records are rarely security-relevant.',s:{curiosity:0}},
+  {t:'Correlate it with other unusual records across their domains to find a pattern.',s:{research:3,analytical:1}}]},
+ {s:'Buried in a minified JavaScript bundle you find a reference to an undocumented endpoint: /internal/v2/diagnostics.', o:[
+  {t:'Probe it carefully with unauthenticated requests first, mapping what it reveals before anything louder.',s:{curiosity:3,problem_solving:2}},
+  {t:'Skip it — internal endpoints are never exposed intentionally.',s:{curiosity:0}},
+  {t:'Trace the JS to reconstruct the parameters it expects, then test precisely.',s:{analytical:3,research:2}},
+  {t:'Blindly throw a fuzzer at it to see what sticks.',s:{problem_solving:1,creativity:1}}]}]},
+{dim:'adaptability', vs:[
+ {s:'Your approved phishing path is blocked mid-campaign: the gateway now strips your exact delivery method, and half the targets remain.', o:[
+  {t:'Analyze what the gateway allows through and engineer a variant that fits, staying inside the ROE.',s:{adaptability:3,creativity:2}},
+  {t:'Restart the same campaign with a new sender domain and identical payload.',s:{creativity:1,persistence:1}},
+  {t:'Stop the campaign and report partial completion.',s:{persistence:0}},
+  {t:'Switch targets to a different vector entirely (vishing) that the gateway cannot touch.',s:{adaptability:2,creativity:2}}]},
+ {s:'Two days into the engagement, the client patches the exact vulnerability your whole attack plan depended on.', o:[
+  {t:'Treat the patch diff as new intel — it often reveals adjacent, unpatched flaws.',s:{creativity:3,analytical:2,learning:1}},
+  {t:'Complain to the client that mid-engagement patching invalidates the assessment.',s:{adaptability:0}},
+  {t:'Fall back to your second-priority attack path you mapped in planning.',s:{adaptability:3,problem_solving:1}},
+  {t:'Rush to exploit it before the patch deploys everywhere.',s:{adaptability:1}}]},
+ {s:'Physical access assessment: your planned entry window fails — the lobby added a security desk yesterday.', o:[
+  {t:'Observe the new routine for an hour and adapt your approach to the observed rhythm.',s:{adaptability:3,curiosity:2}},
+  {t:'Abort the physical phase; the plan is dead.',s:{adaptability:0}},
+  {t:'Try a completely different, pre-authorized access route you scouted earlier.',s:{adaptability:2,persistence:2}},
+  {t:'Walk in confidently as if you belong and hope the desk does not ask.',s:{creativity:1}}]}]},
+{dim:'learning', vs:[
+ {s:'You discover a promising attack technique published last week. Nobody on your team has used it. Your current engagement could benefit from it.', o:[
+  {t:'Rebuild it in your own lab first; only touch the client when it behaves predictably.',s:{learning:3,persistence:2}},
+  {t:'Try it directly on the client — real targets are the best teacher.',s:{learning:0}},
+  {t:'Read the paper thoroughly, then hand-test one safe, read-only step on the client.',s:{learning:2,analytical:2}},
+  {t:'Wait until someone else validates it in the community.',s:{learning:1}}]},
+ {s:'Deadline is tomorrow. Option A: a fast, noisy scan that may trip detection. Option B: a slow manual path that definitely fits the timeframe but finds less.', o:[
+  {t:'Choose B and compensate with sharp prioritization of what manual time you spend on.',s:{analytical:3,persistence:2}},
+  {t:'Choose A — coverage matters more than stealth on a deadline.',s:{problem_solving:1}},
+  {t:'Do A against one low-risk segment and B on the crown jewels, balancing both.',s:{creativity:3,problem_solving:2,adaptability:1}},
+  {t:'Ask the client which they would prefer and follow orders.',s:{analytical:0}}]},
+ {s:'During testing you accidentally access data clearly outside your scope. It looks serious.', o:[
+  {t:'Stop immediately, preserve minimal evidence, and report the overreach transparently to the client contact.',s:{analytical:2,persistence:1}},
+  {t:'Document everything thoroughly, do not download anything, and escalate through the agreed emergency channel.',s:{learning:3,analytical:3}},
+  {t:'Leave without reporting — you were not supposed to be there.',s:{learning:0}},
+  {t:'Continue briefly to understand the blast radius before reporting.',s:{learning:1}}]}]}];
+
+/* ---------- ۱۰/۲۲. بانک سؤال دانش — ۱۳ تخصص × ۸ سؤال × ۴ دسته ----------
+   ساختار هر سؤال: c=دسته، q، o گزینه‌ها، a ایندکس صحیح، e توضیح.
+   در نسخهٔ سرور: ≥۱۰۰ سؤال/تخصص + انتخاب stratified (بخش ۲۲). */
+const KB={
+rto:{cats:['Scoping & Planning','C2 & Implants','Lateral Movement','OpSec & Evasion'],adv:[
+ 'Practice objective-first engagement planning and RoE drafting.','Study implant tradecraft: sleep, jitter, staging separation.','Master pass-the-hash, WMI/SMB lateral techniques.','Learn telemetry mapping: know which action feeds which log.'],q:[
+ {c:0,q:'Before touching any target system, what must exist for a red team engagement?',o:['A signed rules-of-engagement and scope document','A fully configured C2 server','A list of public CVEs for the target','A vpn connection to the client network'],a:0,e:'Legal and operational boundaries (RoE/scope) precede all technical work.'},
+ {c:0,q:'Objective-first operation planning means:',o:['Scanning everything first, then deciding goals','Defining crown-jewel objectives and planning the path backwards','Copying the last engagement\'s plan','Running the loudest tools first to save time'],a:1,e:'Operator planning starts from the objective and works backwards to access.'},
+ {c:1,q:'Why do well-designed implants randomize callback intervals (jitter)?',o:['To reduce bandwidth usage','To defeat timing-based beacon detection analytics','To survive reboot','To encrypt traffic better'],a:1,e:'Regular beacons are a strong detection signature; jitter breaks the pattern.'},
+ {c:1,q:'Before deploying an implant on a compromised host, an operator should verify:',o:['The host\'s antivirus is definitively removed','Egress paths and that staging infrastructure is separated fromoperator infra','That the firewall is disabled','That other employees are logged off'],a:1,e:'Knowing egress + keeping staging separate protects the operation\'s infrastructure.'},
+ {c:2,q:'Pass-the-hash requires which prerequisite?',o:['The plaintext password','The NTLM hash plus reachable admin shares/RPC','A domain admin account','Physical access to the DC'],a:1,e:'PtH authenticates with the NT hash where admin access (e.g. ADMIN$) is reachable.'},
+ {c:2,q:'After foothold on one workstation in a flat internal network, the most valuable next step is usually:',o:['Immediately dumping LSASS on every host','Enumerating shares, sessions and logged-on users to find admin paths','Installing persistence on the first host only','Scanning the internet-facing perimeter again'],a:1,e:'Session/share enumeration reveals where your user has local admin — the pivot map.'},
+ {c:3,q:'Your C2 staging domain was flagged by a threat-intel vendor mid-operation. The professional response is:',o:['Continue — most clients ignore those feeds','Switch to pre-provisioned alternate redirectors and rotate infrastructure','Send more traffic to look legitimate','Disable logging on the target'],a:1,e:'Infrastructure rotation through prepared alternates is core operational tradecraft.'},
+ {c:3,q:'Which action creates the least telemetry while confirming a host is monitored?',o:['Running Mimikatz on it','Touching the host during an agreed detection-measurement window with a pre-approved benign indicator','Dumping the SAM database','Disabling its EDR service'],a:1,e:'Pre-agreed, benign, time-boxed indicators measure detection without real damage.'}]},
+pt:{cats:['Methodology & Scope','Networking','Vulnerabilities','Reporting'],adv:[
+ 'Drill PTES/OWASP-style methodology end-to-end on home labs.','Master TCP/IP fundamentals and pivoting with proxychains/SSH.','Validate every finding manually before trusting scanners.','Study real-world pentest reports and CVSS scoring.'],q:[
+ {c:0,q:'During a scoped test you find a critical flaw on a host explicitly marked out-of-scope. You should:',o:['Exploit it — it proves more impact','Document its existence and notify the client contact without attacking','Ignore it completely','Sell the finding to a bug bounty program'],a:1,e:'Out-of-scope stays untouched; documentation and disclosure to the client is correct.'},
+ {c:0,q:'A scanner flags a critical RCE with 100% confidence. Before reporting you should:',o:['Report immediately — scanners are reliable','Manually validate exploitability and business impact','Delete all other scanner findings','Ask the vendor of the scanner'],a:1,e:'Manual validation eliminates false positives and produces defensible findings.'},
+ {c:1,q:'In a TCP SYN scan, a port that returns nothing (retransmitted SYN, then timeout) is classified as:',o:['Open','Closed','Filtered','Unscanned'],a:2,e:'Silence after SYN means a firewall dropped it: filtered.'},
+ {c:1,q:'To pivot internal traffic through a compromised Linux host, the standard approach is:',o:['Reboot the host into recovery mode','Create a SOCKS proxy/SSH tunnel and route tooling through it','Ask the client for a VPN account','Copy tools to the host\'s web root'],a:1,e:'SSH dynamic forwarding / SOCKS lets your tools operate from the pivot point.'},
+ {c:2,q:'The core flaw behind IDOR is:',o:['Weak password hashing','Missing object-level authorization checks on the server','Unencrypted transport','Verbose error messages'],a:1,e:'The server trusts user-supplied object identifiers without checking ownership.'},
+ {c:2,q:'What distinguishes SSRF from CSRF?',o:['SSRF targets the server\'s own requests; CSRF makes a victim\'s browser act','They are identical in effect','CSRF only works on APIs','SSRF requires authentication'],a:0,e:'SSRF makes the server fetch attacker-chosen URLs; CSRF rides a victim\'s session.'},
+ {c:3,q:'The strongest pentest report structure starts with:',o:['Raw tool output for credibility','An executive summary of business impact, then reproducible technical detail','Alphabetical listing of every port','Screenshots only'],a:1,e:'Executives fund remediation; engineers reproduce it — serve both, in that order.'},
+ {c:3,q:'CVSS scoring primarily weighs:',o:['How many hosts share the flaw','Exploitability and technical impact','The client\'s industry','Scanner confidence percentage'],a:1,e:'CVSS measures exploitability and impact of the vulnerability itself.'}]},
+web:{cats:['HTTP & Protocol','Auth & Session','App Vulnerabilities','API & Methodology'],adv:[
+ 'Master HTTP semantics: CORS, cookies, SameSite, caching.','Build deep auth-model knowledge: JWT, sessions, OAuth flows.','Practice logic-flaw hunting on dedicated labs (IDOR, race conditions).','Learn API-specific methodology: BOLA, mass assignment, versioning.'],q:[
+ {c:0,q:'With SameSite=Lax cookies, a cross-site POST forged by an attacker is:',o:['Sent with cookies — no protection','Not sent with the cookie by default, reducing classic CSRF','Always blocked by the browser entirely','Signed automatically'],a:1,e:'Lax sends cookies only on top-level safe navigations, not cross-site POSTs.'},
+ {c:0,q:'A CORS policy reflecting any Origin header together with Access-Control-Allow-Credentials:true is:',o:['Safe because of the same-origin policy','Dangerous: any site can read authenticated responses','Only relevant to subdomains','Required for modern APIs'],a:1,e:'Reflecting arbitrary origins with credentials defeats CORS protection entirely.'},
+ {c:1,q:'Storing a JWT in localStorage instead of an HttpOnly cookie primarily increases risk of:',o:['CSRF attacks','Token theft via XSS','SQL injection','DNS rebinding'],a:1,e:'Any XSS can read localStorage; HttpOnly cookies hide the token from scripts.'},
+ {c:1,q:'A secure password-reset token must be:',o:['A sequential number per user','Long, random, single-use, and short-lived','Derived from the username hash','Sent in both email and SMS for backup'],a:1,e:'High entropy + single use + expiry prevents guessing and replay.'},
+ {c:2,q:'Boolean-based blind SQL injection is typically confirmed by:',o:['Observing differential responses to true/false conditions','Seeing a SQL error page','Timing out the server','Checking response length only'],a:0,e:'Injecting conditions like AND 1=1 / 1=2 and comparing responses proves injection.'},
+ {c:2,q:'The correct defense for stored XSS in a user profile field is:',o:['Encoding output in the right context when rendering','Blocking the word "script"','Base64-encoding the whole page','Client-side validation only'],a:0,e:'Context-aware output encoding neutralizes stored payloads at render time.'},
+ {c:3,q:'BOLA (Broken Object-Level Authorization), the top API risk, is best tested by:',o:['Scanning for known CVEs','Requesting other users\' object IDs and observing whether the server enforces ownership','Fuzzing all parameters with nulls','Checking TLS configuration'],a:1,e:'Swap object identifiers between accounts — the server must deny unauthorized access.'},
+ {c:3,q:'A systematic authorization test across roles means:',o:['Testing only the admin account','Building a matrix of users × objects × actions and testing each cell','Trusting the API docs','Testing only with the developer account'],a:1,e:'Authorization matrices reveal exactly which boundaries fail, per role.'}]},
+ad:{cats:['Kerberos & Trusts','Enumeration','Escalation','Attack Paths & Detection'],adv:[
+ 'Learn Kerberos deeply: AS-REQ/TGS-REQ, delegation, pre-auth.','Practice LDAP/BloodHound-style enumeration on GOAD-style labs.','Study ACL abuse: GenericAll, WriteDacl, DCSync rights.','Map attack paths graph-theoretically; learn their detection signatures.'],q:[
+ {c:0,q:'Kerberoasting works by requesting TGS tickets for SPN-registered accounts in order to:',o:['Bypass authentication entirely','Crack the service account password offline from the ticket','Elevate directly to Domain Admin','Disable Kerberos pre-authentication'],a:1,e:'The TGS is encrypted with the service account\'s hash — crackable offline.'},
+ {c:0,q:'AS-REP Roasting targets accounts that:',o:['Have SPNs','Do not require Kerberos pre-authentication','Are disabled','Use smart cards'],a:1,e:'Without pre-auth, anyone can request an AS-REP encrypted with the account hash.'},
+ {c:1,q:'BloodHound finds privilege escalation routes primarily by:',o:['Running exploits on the DC','Building a graph of relationships and computing shortest attack paths','Brute-forcing passwords','Scanning for missing patches'],a:1,e:'It maps users/groups/sessions/ACLs into a graph, then finds shortest paths to DA.'},
+ {c:1,q:'Kerberos-based username enumeration works because:',o:['Pre-auth failures differ for valid vs non-existent users','KDC responds identically to all names','Lockout messages leak validity','All accounts share salt'],a:0,e:'KRB5KDC_ERR_PREAUTH_REQUIRED vs PRINCIPAL_UNKNOWN reveals valid usernames.'},
+ {c:2,q:'DCSync requires which specific rights on the domain?',o:['GenericAll on Users','DS-Replication-Get-Changes (and Get-Changes-All) replication rights','Local admin on any workstation','Schema admin group membership'],a:1,e:'Replication directory-change rights let an attacker request all hash data via DRSUAPI.'},
+ {c:2,q:'Unconstrained delegation is dangerous because the affected computer:',o:['Caches plaintext passwords','Stores TGTs of every user authenticating to it, including Domain Admins','Disables Kerberos encryption','Accepts NTLM only'],a:1,e:'Any user (incl. DA) authenticating there leaves their TGT in LSASS for reuse.'},
+ {c:3,q:'The classic "derivative local admin" escalation relies on:',o:['Users being local admins on multiple machines with shared credentials','Patch management failures','Weak Wi-Fi passwords','Unpatched browsers'],a:0,e:'Credential/local-admin overlap lets attackers hop machine to machine until privilege.'},
+ {c:3,q:'Which event pattern most suggests Kerberoasting?',o:['Mass 4624 type-3 logons','A burst of 4769 TGS requests with RC4 encryption from one source','Kerberos pre-auth disabled alerts','Many failed interactive logons'],a:1,e:'A spike of RC4-encrypted ticket requests from a single principal is the signature.'}]},
+osint:{cats:['Passive Recon','People & Orgs','Data Correlation','Analyst OPSEC'],adv:['Practice subdomain/infra recon: CT logs, passive DNS, ASN mapping.','Build structured people/org mapping with verification discipline.','Learn pivoting between data sources to confirm single points.','Harden your own research OPSEC before touching sensitive targets.'],q:[
+ {c:0,q:'Certificate Transparency logs are most valuable for discovering:',o:['Employee passwords','Subdomains and issued certificates for a domain','Open ports','Leaked databases'],a:1,e:'CT is a public ledger of issued certs — a rich, passive subdomain source.'},
+ {c:0,q:'Historical passive DNS records are useful because they reveal:',o:['Current firewall rules','Infrastructure that existed before, including decommissioned hosts and reuse patterns','The target\'s antivirus product','User browsing history'],a:1,e:'Old resolutions expose forgotten assets and shared infrastructure relationships.'},
+ {c:1,q:'Mapping a target\'s org chart from professional networks primarily enables:',o:['Direct credential theft','Prioritized targeting: which roles hold access worth pursuing','Legal compliance','Faster port scanning'],a:1,e:'Role mapping tells you whose access matters — the backbone of SE and recon targeting.'},
+ {c:1,q:'Verifying whether corporate emails appear in publicly disclosed breach dumps is valuable because it shows:',o:['The company\'s stock value','Real password patterns and reused credentials your engagement should assume','Nothing of value','Employee satisfaction'],a:1,e:'Exposure in breaches indicates credential-styling and reuse risk — lawful OSINT signal.'},
+ {c:2,q:'Which correlation best infers an organization\'s internal tech stack?',o:['Job postings + HTTP response headers + public repos','Their logo colors','Office locations','Social media likes'],a:0,e:'Hiring ads name technologies; headers and repos confirm them — triangulation.'},
+ {c:2,q:'EXIF metadata in publicly posted photos can leak:',o:['Only the camera brand','GPS coordinates, device details and timestamps','Encrypted content','Future post schedules'],a:1,e:'Stripped or preserved EXIF can geolocate photos and fingerprint devices.'},
+ {c:3,q:'Analyst OPSEC during sensitive OSINT on a hostile-aware target means:',o:['Using dedicated research infrastructure and avoiding corporate IP touching the target','Querying from the office network for speed','Logging into target portals with personal accounts','Disabling your VPN'],a:0,e:'Your footprint must not reveal the operation or endanger your organization.'},
+ {c:3,q:'Professional OSINT reporting should always attach:',o:['Raw screenshots without context','Source confidence levels and collection timestamps','Personal opinions about staff','The analyst\'s own credentials'],a:1,e:'Intelligence value depends on traceable, graded sourcing.'}]},
+cloud:{cats:['IAM & Identity','Services & Storage','Attack Techniques','Detection & Governance'],adv:['Learn IAM deeply: roles, policies, trust relationships, boundaries.','Study metadata/SSRF-to-role chains in each major cloud.','Practice escalation graphs: PassRole, assume-role chains, token abuse.','Learn the guardrails: CloudTrail analysis, permission boundaries, least privilege.'],q:[
+ {c:0,q:'A cross-account assume-role trust in AWS should always be paired with:',o:['A strong password','An external ID condition (and least-privilege policy)','Public accessibility','MFA disabled for speed'],a:1,e:'External ID prevents the confused-deputy problem in cross-account trusts.'},
+ {c:0,q:'Long-lived static access keys are risky compared to roles because they:',o:['Are slower','Never expire and are easily leaked via repos/logs','Use older encryption','Cannot be restricted'],a:1,e:'Static keys leak (commits, CI logs, laptops) and stay valid until rotated.'},
+ {c:1,q:'The most effective single control against public S3 data exposure is:',o:['Renaming buckets randomly','Account-level Block Public Access plus explicit deny policies','Weekly manual audits','Disabling versioning'],a:1,e:'Blocking at account level prevents any future accidental public policy.'},
+ {c:1,q:'An SSRF that can reach the cloud metadata service (169.254.169.254) is severe because it can yield:',o:['The instance\'s wallpaper','Temporary credentials of the instance\'s attached role','The root account password','Console screenshots'],a:1,e:'Metadata returns role session credentials — instant identity theft of the workload.'},
+ {c:2,q:'iam:PassRole combined with a compute-service permission creates escalation because it lets a principal:',o:['Reset other users\' passwords','Attach any role to a resource they control and inherit its privileges','Delete CloudTrail logs','Read all buckets'],a:1,e:'PassRole + control of a workload = assuming more privileged identities.'},
+ {c:2,q:'A common CI/CD cloud-attack pattern is:',o:['Brute-forcing the AWS console','Extracting pipeline-secrets/tokens to access the cloud environment','DDoS on the API gateway','Downgrading TLS'],a:1,e:'Build systems hold powerful tokens; pipeline compromise becomes cloud compromise.'},
+ {c:2,q:'"Impossible travel" alerts are a detection for:',o:['S3 replication lag','Console/API logins from geographically impossible sequences','Failed MFA once','Instance reboots'],a:1,e:'Rapid location changes indicate stolen sessions or credential misuse.'},
+ {c:3,q:'Permission boundaries in cloud IAM exist to:',o:['Speed up API calls','Cap the maximum privileges any policy can grant, even for admins of a scope','Encrypt storage','Replace MFA'],a:1,e:'Boundaries are guardrails: delegated admins cannot escalate beyond them.'}]},
+xdev:{cats:['Memory Fundamentals','Discovery & Fuzzing','Exploitation','Modern Mitigations'],adv:['Master memory layout: stack frames, heap allocators, calling conventions.','Build and triage your own fuzzing harnesses (coverage-guided).','Practice writing reliable primitives: ROP, arbitrary read/write.','Study each mitigation deeply — and the leak each one requires.'],q:[
+ {c:0,q:'A classic stack buffer overflow achieves control by:',o:['Encrypting the stack','Overwriting the saved return address past the buffer boundary','Corrupting the heap header','Disabling ASLR'],a:1,e:'Input past the buffer reaches the saved EIP/RIP slot — control of execution.'},
+ {c:0,q:'A use-after-free vulnerability occurs when:',o:['Memory is never allocated','A pointer is dereferenced after its memory was freed','The stack is too small','A null pointer is returned'],a:1,e:'Reallocating that memory lets an attacker place controlled data where the stale pointer points.'},
+ {c:1,q:'Coverage-guided fuzzing outperforms naive fuzzing because it:',o:['Is always faster per execution','Uses feedback on reached code to generate inputs reaching deeper paths','Requires no grammar','Runs only on Linux'],a:1,e:'Tracking coverage steers the fuzzer toward new, deeper code states.'},
+ {c:1,q:'Correct triage of a fuzzer crash begins with:',o:['Reporting it immediately as exploitable','Minimizing the testcase and determining crash type/control of state','Deleting the corpus','Restarting the fuzzer'],a:1,e:'Minimization plus root-cause analysis determines if it is a real, exploitable bug.'},
+ {c:2,q:'ret2libc defeats NX because:',o:['It disables NX first','It reuses executable library code already mapped, with arguments on the stack','The heap is always executable','It encrypts the payload'],a:1,e:'NX blocks injected shellcode, but libc\'s own executable code can be called directly.'},
+ {c:2,q:'A ROP chain is needed (rather than ret2libc alone) mainly when:',o:['ASLR is disabled','Complex logic is required — chaining many small gadgets (often with an infoleak against ASLR)','The binary is small','The target uses Windows'],a:1,e:'Gadgets compose arbitrary behavior; ASLR requires a leak to locate modules.'},
+ {c:2,q:'ASLR defends by:',o:['Marking the stack non-executable','Randomizing base addresses of memory regions each run','Canary values','Removing imports'],a:1,e:'Random bases make hardcoded addresses fail — until an infoleak defeats it per-run.'},
+ {c:2,q:'A stack canary is bypassed by:',o:['Overwriting it with itself via a format-string leak or partial overwrite primitives','Writing fewer bytes','Disabling the heap','Using UDP'],a:0,e:'Leaking or reconstructing the canary lets the overwrite pass the integrity check.'}]},
+rev:{cats:['Static Analysis','Dynamic Analysis','Packing & Obfuscation','Malware Behavior'],adv:['Learn assembly reading fluently; practice on crackmes and CTF binaries.','Build a safe detonation lab: snapshots, network simulation, API tracing.','Master unpacking: entropy analysis, OEP finding, memory dumping.','Study malware families: config extraction, C2 protocols, persistence.'],q:[
+ {c:0,q:'A reliable first step to identify the toolchain of an unknown binary is:',o:['Guessing from file size','Examining strings, section names, imports and compiler-specific prologues','Running it immediately','Renaming the extension'],a:1,e:'Artifacts like section names and runtime imports fingerprint compilers and packers.'},
+ {c:0,q:'The import table often reveals a binary\'s capabilities because:',o:['It contains the source code','APIs like VirtualAlloc + WinInet/WinHTTP suggest allocation and network behavior','It lists the author','It shows all strings'],a:1,e:'Imports are a behavioral surface: networking, injection, crypto APIs stand out.'},
+ {c:1,q:'Detonating suspected malware must happen:',o:['On your daily-driver VM','In an isolated, snapshotted VM with controlled/simulated network','Directly on the lab server','In the cloud production account'],a:1,e:'Isolation plus snapshot rollback prevents escape and enables repeatable analysis.'},
+ {c:1,q:'API hooking (e.g. with Frida-style tracers) is powerful against obfuscation because:',o:['It recompiles the binary','Observed runtime behavior reveals what obfuscated code actually does','It removes packing automatically','It works without executing the file'],a:1,e:'Even obfuscated code must call real APIs — the trace tells the truth.'},
+ {c:1,q:'High entropy sections combined with a tiny import table strongly indicate:',o:['A debug build','A packed binary','A signed driver','Statically linked C'],a:1,e:'Packers compress/encrypt code (high entropy) and import few APIs until unpacked.'},
+ {c:1,q:'To analyze a packed binary further, the standard approach is:',o:['Deletion','Letting it self-unpack, then dumping memory at/near the OEP for a rebuilt unpacked file','Reversing the entropy','Disabling DEP'],a:1,e:'Dumping at OEP recovers the original code for static analysis.'},
+ {c:1,q:'A DGA (Domain Generation Algorithm) in malware means the C2 domains are:',o:['Hardcoded forever','Generated algorithmically from a seed/time, making blocking-by-list ineffective','Chosen by the victim','Always on the same IP'],a:1,e:'Both sides compute future domains from a shared seed — resilient C2 infra.'},
+ {c:1,q:'Long sleeps, mouse-movement checks and tiny screen-resolution checks in malware are typically:',o:['Performance optimization','Sandbox-evasion tricks','Update mechanisms','Encryption routines'],a:1,e:'Sandboxes differ from real user machines — malware probes those differences.'}]},
+c2:{cats:['Implant Engineering','Infrastructure','Evasion & Memory Discipline','Reliability & OPSEC'],adv:['Study malleable C2 profiles and traffic shaping against baselines.','Learn redirector architecture: CDN fronts, domain rotation, staging tiers.','Master in-memory tradecraft: sleep masking, unhooking, module stomping.','Design for failure: channel fallback without noise.'],q:[
+ {c:0,q:'A well-architected initial implant should be:',o:['A monolith with every capability compiled in','Small and staged — pull capabilities on demand after trust is established','Static and unchanging','Signed by the analyst'],a:1,e:'Minimal footprint first; modular tasking limits exposure if dropped or captured.'},
+ {c:0,q:'Callback traffic blends best when it:',o:['Uses default tool UserAgents','Mimics allowed egress patterns of the target (e.g. normal-looking 443 with fitting fingerprints)','Floods the proxy','Uses raw UDP to port 53 always'],a:1,e:'Deviations from the environment\'s baseline are what detection analytics catch.'},
+ {c:1,q:'Redirectors exist primarily to:',o:['Speed up C2','Separate and protect operator infrastructure from target visibility','Encrypt payloads','Store logs'],a:1,e:'If a redirector burns, the operator\'s real backend and other operations survive.'},
+ {c:1,q:'Domain reputation matters because freshly registered domains:',o:['Are always cheaper','Are flagged quickly by filters, so aged/clean domains reduce suspicion','Are faster','Cannot be blocked'],a:1,e:'New domains carry instant reputation penalties; seasoned domains blend better.'},
+ {c:1,q:'Sleep masking (encrypting the implant during idle) defends against:',o:['Network monitoring','Memory scanners that snapshot process memory while the implant waits','Antivirus downloads','User-mode hooks'],a:1,e:'In-memory scanning is a primary hunt technique; idle-time encryption reduces the surface.'},
+ {c:1,q:'Which configuration most quickly burns a C2 operation?',o:['Default profiles: known UserAgent, default TLS cert, default ports','Custom jitter','Malleable profiles','DNS over HTTPS'],a:0,e:'Default fingerprint strings are among the first signatures defenders write.'},
+ {c:1,q:'Resilient channel design means:',o:['Sending beacons on every protocol simultaneously','Ordered fallback across channels with quiet backoff — without flooding','Disabling all logging','One channel, forever'],a:1,e:'Graceful degradation keeps the session alive without generating alerting noise.'},
+ {c:1,q:'Matching your C2 profile to the target\'s observed baseline is important because:',o:['It saves bandwidth','Anomalies relative to the environment\'s normal traffic are what analytics detect','It is required by law','It speeds up tasking'],a:1,e:'Detection is anomaly-based: your traffic must be unremarkable *for that network*.'}]},
+se:{cats:['Recon & Pretext','Delivery & Vectors','Influence & Psychology','Controls & Rules of Engagement'],adv:['Study pretext-building: consistent identities and backstory ops.','Learn email-security stacks and how delivery must adapt (with authorization).','Read influence research (Cialdini) with a strict ethics frame.','Measure behavior (report rates), never blame individuals.'],q:[
+ {c:0,q:'A pretext survives scrutiny only if:',o:['It sounds good spontaneously','It is backed by consistent identity artifacts and a rehearsed, plausible backstory','It uses urgency always','It impersonates the CEO'],a:1,e:'One inconsistency collapses the pretext; operational consistency is the craft.'},
+ {c:0,q:'Pre-engagement intelligence on support/helpdesk workflows helps SE because:',o:['It finds CVEs','Calls and emails that match real processes are naturally more credible','It bypasses MFA','It speeds up scanning'],a:1,e:'Mimicking the organization\'s real procedures is what makes pretexts believable.'},
+ {c:1,q:'If the target enforces macro-blocking on Office attachments, the professional adaptation is:',o:['Sending the same attachment anyway','Choosing an authorized alternate vector (e.g. link-based) that fits the RoE','Disabling their security tools','Emailing employees from personal accounts off-scope'],a:1,e:'Vectors change; scope and authorization never do.'},
+ {c:1,q:'During a vishing call, the target grows suspicious. The ethical operator should:',o:['Escalate pressure and threats','De-escalate, stay in character briefly or disengage cleanly — never coerce','Ask for their password directly','Call back 50 times'],a:1,e:'Ethics lines: no threats, no coercion, clean disengagement, full disclosure in report.'},
+ {c:1,q:'The two strongest psychological levers in most successful SE incidents are:',o:['Authority and urgency','Humor and flattery','Boredom and confusion','Silence and patience'],a:0,e:'People comply most under perceived legitimate authority plus time pressure.'},
+ {c:1,q:'Professional SE engagements draw a hard line at:',o:['Testing helpdesk procedures','Targeting employees\' private lives/family to extract leverage','Phishing with approved templates','Reporting metrics'],a:1,e:'Assessment targets the organization\'s controls, not humans\' private spheres.'},
+ {c:1,q:'A healthy security-awareness program measures:',o:['Shame lists of clickers','Behavioral trends: report-button usage and click rates over time, aggregated','Only failures','Nothing'],a:1,e:'Aggregate trends measure resilience and training effect without punishing individuals.'},
+ {c:1,q:'Captured credentials in an authorized phishing simulation must be:',o:['Used to log into real systems further','Collected only in controlled infrastructure, never replayed, and reported aggregated','Sold','Stored in plaintext on personal laptops'],a:1,e:'Proof of capture suffices; reuse or plaintext storage is an ethical and legal breach.'}]},
+mob:{cats:['Platform Security Models','Runtime Analysis','Data & Network','Tooling'],adv:['Learn Android/iOS sandboxes, permissions, keychain/keystore models.','Practice Frida-based instrumentation and root/jailbreak detection bypass.','Audit storage: logs, prefs, caches, backups for secrets.','Set up a mobile lab: rooted device/emulator, proxy with pinning bypass.'],q:[
+ {c:0,q:'Android app sandboxing is fundamentally based on:',o:['Per-app Linux UIDs with kernel-enforced isolation','Obfuscated code','Google Play review','Encrypted APKs'],a:0,e:'Each app runs as its own UID; kernel DAC boundaries enforce separation.'},
+ {c:0,q:'iOS Keychain protection classes (e.g. kSecAttrAccessibleAfterFirstUnlock) control:',o:['App size limits','When the item is accessible relative to device lock state','Network protocols','Push notification timing'],a:1,e:'Protection classes tie data availability to lock/first-unlock states.'},
+ {c:1,q:'Frida is effective on unmodified apps because it:',o:['Recompiles the app','Injects a JS/engine at runtime to hook and trace functions dynamically','Requires the source','Only works on emulators'],a:1,e:'Runtime injection enables tracing and altering behavior without touching the binary.'},
+ {c:1,q:'A standard way to bypass root detection in an Android APK (authorized testing) is:',o:['Reinstalling the app','Patching the check in smali and re-signing, or Frida-hooking the check','Clearing logs','Changing the icon'],a:1,e:'Patch-and-resign or hooking both neutralize client-side checks in test builds.'},
+ {c:1,q:'The most common serious mobile data-storage flaw is:',o:['Using SQLite','Secrets in plaintext SharedPreferences/logs/caches instead of Keystore/Keychain','Using Kotlin','Compressing assets'],a:1,e:'Unencrypted local secrets are trivially extracted from backups or the filesystem.'},
+ {c:1,q:'TLS pinning bypass during an authorized mobile test is done to:',o:['Break the backend','Inspect the app\'s traffic in your proxy within scope','Slow the app','Steal users\' sessions'],a:1,e:'Bypass enables traffic analysis — strictly inside the engagement\'s scope.'},
+ {c:1,q:'ProGuard/R8 obfuscation affects analysis by:',o:['Encrypting network traffic','Renaming classes/methods, degrading static readability (maps files restore it)','Adding MFA','Signing checks'],a:1,e:'Name obfuscation hides intent in static analysis; retraceable via shipped maps.'},
+ {c:1,q:'objection-style tooling primarily speeds up:',o:['App store review','Runtime exploration: hooking, storage dumps, pinning bypass via Frida','Compilation','UI design'],a:1,e:'It packages common Frida recipes into quick, repeatable runtime inspection.'}]},
+wifi:{cats:['Protocols & Cryptography','Attack Techniques','RF & SDR','Operations & Detection'],adv:['Learn 802.11 deeply: association, 4-way handshake, PMK derivation.','Practice authorized lab attacks: evil twin, PMKID, deauth + capture.','Explore SDR: spectrum survey, protocol identification beyond Wi-Fi.','Learn enterprise wireless defenses: 802.11X/EAP, WIDS, 802.11w.'],q:[
+ {c:0,q:'Captured WPA2-PSK 4-way handshakes are crackable offline because:',o:['The PSK is sent in cleartext','The MIC can be brute-forced: PMK derives directly from SSID+passphrase','APs leak keys','Handshakes are unencrypted'],a:1,e:'The pairwise key chain starts from the passphrase — offline guessing verifies via MIC.'},
+ {c:0,q:'WPA3\'s SAE improves over WPA2-PSK mainly by:',o:['Being faster','Resisting offline dictionary attacks via mutual, elliptic-curve handshake','Removing encryption','Allowing open networks'],a:1,e:'SAE performs a PAKE: captures no longer enable efficient offline guessing.'},
+ {c:0,q:'WPA2/WPA3 "transition mode" networks can be downgraded because:',o:['WPA3 is weaker','They still accept WPA2 associations, enabling downgrade captures','APs cache keys','Clients ignore security'],a:1,e:'Compatibility with WPA2 clients reopens classic handshake attacks.'},
+ {c:1,q:'The PMKID attack is notable because it requires:',o:['A client to authenticate','Only one EAPOL frame from the AP — no waiting for a client','Physical access','The router password'],a:1,e:'PMKID in the first EAPOL message enables clientless hash capture.'},
+ {c:1,q:'An evil-twin access point attack works by:',o:['Cracking WEP','Cloning a legitimate SSID so clients associate to the attacker, often harvesting credentials via captive portal','Jamming all channels','Spoofing MACs of printers'],a:1,e:'Clients trust SSIDs; a stronger clone lures them into attacker-controlled territory.'},
+ {c:1,q:'An RTL-SDR is most useful in wireless assessments for:',o:['Cracking WPA3','Wideband spectrum survey and identifying non-Wi-Fi RF transmissions','Boosting signal','Firmware dumps'],a:1,e:'SDR reveals the full RF picture — devices and protocols beyond Wi-Fi.'},
+ {c:1,q:'802.11w (protected management frames) specifically mitigates:',o:['Weak passwords','Deauthentication/disassociation flood attacks','WEP replay','Bluetooth attacks'],a:1,e:'Unprotected management frames are what make trivial deauth floods possible.'},
+ {c:1,q:'Detecting rogue access points in an enterprise relies on:',o:['Manual building walks only','Continuous comparison of observed APs against an authorized inventory (WIDS)','Disabling all Wi-Fi','Password rotation'],a:1,e:'A maintained allowlist plus continuous monitoring is the core rogue-detection model.'}]},
+iot:{cats:['Hardware Interfaces','Firmware Analysis','Embedded Systems','RF & Replay'],adv:['Learn bus identification: UART/JTAG/SPI/I2C — pinout and baud discovery.','Practice extraction: flash clips, chip-off, then binwalk analysis.','Hunt firmware flaws: hardcoded creds, weak services, unauthenticated updates.','Explore RF replay and rolling-code schemes with proper authorization.'],q:[
+ {c:0,q:'The standard approach to identify a device\'s UART console is:',o:['Trying all USB ports','Probing board test points for TX/RX/GND, then testing common baud rates for boot output','Reading the box label','Guessing the IP'],a:1,e:'Multimeter/oscilloscope probing plus 9600–115200 baud sweeps reveals console output.'},
+ {c:0,q:'A root shell available on an unauthenticated UART console is considered critical because:',o:['It is slow','Physical/debug access yields full firmware control without credentials','It needs internet','It only works in factories'],a:1,e:'Unsecured debug interfaces bypass the entire authentication model.'},
+ {c:0,q:'Firmware is commonly extracted from an SPI NOR flash chip by:',o:['Photographing the PCB','Clipping the chip and reading it with a programmer, or dumping via an existing bootloader','Shaking the device','Asking the vendor'],a:1,e:'Clip/programmer reads the flash directly — no code execution needed.'},
+ {c:0,q:'binwalk assists firmware analysis by:',o:['Compressing binaries','Scanning for embedded signatures/filesystems (e.g. squashfs) to carve them out','Recompiling firmware','Blocking RF'],a:1,e:'Signature scanning locates and extracts embedded filesystems for inspection.'},
+ {c:0,q:'Hardcoded credentials in firmware are dangerous because they:',o:['Speed up boot','Ship the same key to every deployed device — often root','Use strong crypto','Are unique per device'],a:1,e:'One extraction compromises the entire product line until patched.'},
+ {c:0,q:'BusyBox-based embedded systems frequently expose risk because:',o:['They are too new','Default services (telnet, weak httpd) and minimal hardening ship enabled','They cannot run updates at all','They lack networking'],a:1,e:'Minimal embedded builds often enable legacy services by default on the LAN.'},
+ {c:0,q:'Rolling-code schemes (e.g. garage remotes) aim to prevent:',o:['Battery drain','Replay attacks by invalidating previously used codes','Interference','Cloning via app'],a:1,e:'Synchronized counters make simple capture-and-replay fail — when implemented well.'},
+ {c:0,q:'An exposed, unfused JTAG interface on a production device allows an attacker to:',o:['Improve performance','Halt the CPU, read/modify memory and flash — full debugging control','Update apps','Encrypt storage'],a:1,e:'JTAG is direct silicon-level control; locked-down (fused) JTAG is a hardening must.'}]}
+};
+
+/* ---------- ۱۳/۱۴. سنجش عملی — ۳ تصمیم + یادداشت برای هر تخصص ---------- */
+const PRAC={
+rto:{intro:'Simulation (isolated lab): you hold a foothold on a finance workstation inside a monitored corporate network. Objective: reach the file server share "FIN-EXEC" without triggering detection.',c1:{q:'You need situational awareness first. What is the best move?',o:[{t:'Run a full aggressive port scan of the /16 from this host',s:0},{t:'Passively enumerate your session\'s access, nearby hosts and logged-on users first',s:2},{t:'Immediately attempt known credential dumps on the domain controller',s:0}]},c2:{q:'You confirm local admin on a second workstation via reused credentials. Next:',o:[{t:'Dump credentials there and chain onward through sessions found',s:2},{t:'Install permanent persistence and reboot the host',s:0},{t:'Scan the DC from it with default tool settings',s:1}]},c3:{q:'Mid-operation, EDR quarantines one of your tools on a host you were not active on.',o:[{t:'Continue as planned — one quarantine is noise',s:0},{t:'Pause, reassess which action was flagged, switch to alternate tradecraft and slower cadence',s:2},{t:'Wipe your tracks aggressively on all hosts',s:0}],dims:'adapt'},note:{q:'Write your finding note for the operator log: current access level, path to objective, and detection risk observed.',kw:['local admin','credential','lateral','detection','edr','objective','share','session']}},
+pt:{intro:'Simulation (isolated lab): two-week internal infrastructure test. You found an old backup server in scope, unscanned so far.',c1:{q:'Your first structured step on this host:',o:[{t:'Fingerprint services and versions manually, then correlate with known issues',s:2},{t:'Launch every exploit matching the OS name',s:0},{t:'Skip it — backups are boring',s:0}]},c2:{q:'The backup server stores credentials in a config file. Best methodology:',o:[{t:'Validate where those credentials work within scope, chaining methodically and logging each step',s:2},{t:'Fire them at everything on the network including out-of-scope segments',s:0},{t:'Report immediately without validation',s:1}]},c3:{q:'Mid-test, the client adds an emergency asset to scope with a 24h window.',o:[{t:'Drop everything and test the new asset randomly',s:0},{t:'Re-prioritize: fit the new asset into your methodology with the remaining hours',s:2},{t:'Refuse any change',s:0}],dims:'adapt'},note:{q:'Draft the executive summary line plus technical finding entry for this backup-server chain.',kw:['impact','executive','credential','remediation','scope','finding','risk','reproduce']}},
+web:{intro:'Simulation (isolated lab): an e-commerce web app. You have two accounts (user A, user B) and found the endpoint /api/v2/orders/{id} returns order data.',c1:{q:'What is the highest-value first test here?',o:[{t:'Check whether user A can fetch user B\'s order by changing the ID',s:2},{t:'Fuzz all parameters with SQL payloads immediately',s:0},{t:'Run a full directory brute force',s:1}]},c2:{q:'A ID: you can read other users\' orders. Methodology for a solid finding:',o:[{t:'Map the boundary precisely (which objects, which actions), test write actions carefully, document with reproducible requests',s:2},{t:'Download the entire database through the endpoint',s:0},{t:'Report without any evidence',s:0}]},c3:{q:'The team deploys a fix mid-test. Your endpoint now returns 403 for everything — even your own orders.',o:[{t:'Conclude the API is broken and report denial of service',s:0},{t:'Re-test your own access: maybe authorization logic changed and new flaws (e.g. alternate ID fields) appeared',s:2},{t:'Stop testing the API entirely',s:0}],dims:'adapt'},note:{q:'Write the finding: IDOR in orders API — evidence, impact, remediation suggestion.',kw:['idor','authorization','object','impact','remediation','request','user','evidence']}},
+ad:{intro:'Simulation (isolated lab): you are a normal domain user on a workstation. Goal: identify your path toward privileged access.',c1:{q:'First enumeration choice:',o:[{t:'Collect domain group memberships, ACLs and session data to build the relationship graph',s:2},{t:'Attempt DCSync immediately',s:0},{t:'Brute-force the DA account',s:0}]},c2:{q:'You discover you can reset the password of a user in a privileged group via an ACL misconfiguration.',o:[{t:'Reset, authenticate as them, map new reach — documenting each step for cleanup',s:2},{t:'Reset every privileged account at once',s:0},{t:'Ignore it — ACLs are usually intentional',s:0}]},c3:{q:'Your Kerberoasting request triggered a SOC ticket asking about unusual TGS requests.',o:[{t:'Continue at full speed — ticket alone is not a detection',s:0},{t:'Slow down, coordinate with the RoE contact, adjust technique/encryption to reduce noise',s:2},{t:'Abort the engagement',s:0}],dims:'adapt'},note:{q:'Log the attack path found: starting rights → ACL abuse → group → target, plus suggested remediation.',kw:['acl','reset','group','path','kerberoast','remediation','privilege','graph']}},
+osint:{intro:'Simulation (safe, public data): target company "Nordwind Logistics" — you must build an external attack-surface brief without touching their systems.',c1:{q:'Starting point:',o:[{t:'Gather domains, CT-log subdomains, ASN ranges and breach-exposure of corporate emails — all passive',s:2},{t:'Run an aggressive port scan of their HQ IP range',s:0},{t:'Call employees pretending to be support (not yet authorized)',s:0}]},c2:{q:'You find a forgotten staging subdomain in CT logs exposing a login page with version banners.',o:[{t:'Correlate: version → known CVEs (documented passively), map related infrastructure, flag for active testing later',s:2},{t:'Brute-force its login now',s:0},{t:'Discard it — staging is never risky',s:0}]},c3:{q:'Mid-collection, your research IP gets blocked by their public website firewall.',o:[{t:'Pause collection, switch to cached/public-archive sources, reassess footprint discipline',s:2},{t:'Rotate through faster scanning to finish before more blocks',s:0},{t:'Continue from the corporate network instead',s:0}],dims:'adapt'},note:{q:'Summarize the recon brief: key exposures, most promising access vector, confidence level.',kw:['subdomain','exposure','vector','confidence','passive','infrastructure','breach','staging']}},
+cloud:{intro:'Simulation (isolated cloud lab): you obtained SSRF on an internal microservice in an AWS environment. The instance role "svc-app" is attached.',c1:{q:'First move with SSRF:',o:[{t:'Query the instance metadata (IMDS) for role session credentials',s:2},{t:'Scan the entire VPC through the SSRF',s:0},{t:'Try to read the root account password',s:0}]},c2:{q:'The svc-app policy includes iam:ListAttachedRolePolicies and ec2:RunInstance with iam:PassRole visible on another role.',o:[{t:'Map the escalation: list the powerful role\'s policies, then confirm PassRole-based takeover path before executing',s:2},{t:'Assume the admin role blindly via guesswork',s:0},{t:'Delete the instance role to cause outage',s:0}]},c3:{q:'CloudTrail anomaly alerts fire on your metadata-derived API calls.',o:[{t:'Disable CloudTrail in the account',s:0},{t:'Reduce action volume, switch to less-monitored read paths, and note detection latency for the report',s:2},{t:'Delete the logs',s:0}],dims:'adapt'},note:{q:'Document the chain: SSRF → metadata → role → escalation candidate → blast radius.',kw:['ssrf','metadata','role','credentials','escalation','passrole','blast','cloudtrail']}},
+xdev:{intro:'Simulation (controlled binary, lab-written): a local service crashes with a long "PING" argument. You have the binary, no source, ASLR on, NX on.',c1:{q:'First analysis step:',o:[{t:'Determine crash offset and which registers/securities apply, in a debugger',s:2},{t:'Send 10000 random bytes and hope',s:0},{t:'Immediately write shellcode for the stack',s:0}]},c2:{q:'You control EIP at offset 512; NX blocks stack execution. Your plan:',o:[{t:'Build a ROP chain from binary modules to call system()/protect, or ret2libc',s:2},{t:'Disable NX in the binary headers and rerun',s:0},{t:'Give up — NX makes it unexploitable',s:0}]},c3:{q:'ASLR randomizes module bases each run — your chain fails 90% of the time.',o:[{t:'Hunt an infoleak primitive (e.g. output that reflects a pointer) to compute bases per-run',s:2},{t:'Reboot the target until you win the lottery',s:0},{t:'Submit the unreliable exploit as final',s:0}],dims:'adapt'},note:{q:'Write the exploit-note: bug class, control achieved, mitigations faced, reliability status.',kw:['offset','eip','rop','nx','aslr','leak','reliability','control']}},
+rev:{intro:'Simulation (harmless sample built for training): an unknown Windows binary shows no useful strings and one import: VirtualAlloc. Behavior on execution: network call to a hardcoded host.',c1:{q:'Approach:',o:[{t:'High entropy + tiny imports → likely packed; run in isolated VM, trace APIs dynamically',s:2},{t:'Read the raw bytes linearly as code',s:0},{t:'Execute on your main workstation for realism',s:0}]},c2:{q:'Dynamic trace shows: InternetOpenUrl → VirtualAlloc → copy 200KB → jump into it. Meaning:',o:[{t:'It downloads a second stage and executes from memory — dump that memory region for analysis',s:2},{t:'It is a browser update utility',s:0},{t:'The trace is corrupted',s:0}]},c3:{q:'In a sandbox it runs perfectly, but on a normal VM with a desktop it exits instantly after checking something.',o:[{t:'It likely checks environment indicators (mouse, uptime, user artifacts) — identify and satisfy them in the trace session',s:2},{t:'Mark the sample as broken',s:0},{t:'Disable the checks permanently and analyze the crippled sample only',s:1}],dims:'adapt'},note:{q:'Write the analysis note: packer, stage-2 delivery, environment checks, indicators.',kw:['packed','stage','download','memory','sandbox','indicator','dump','c2']}},
+c2:{intro:'Simulation (design exercise): you must spec an implant for a client network allowing only HTTPS through a TLS-inspecting proxy. No scanning noise tolerated.',c1:{q:'Callback design:',o:[{t:'HTTPS callbacks via domain-fronted/CDN redirector, jittered intervals, profile mimicking the client\'s normal TLS patterns',s:2},{t:'Raw TCP on port 4444 for speed',s:0},{t:'DNS tunneling for everything',s:1}]},c2:{q:'The blue team deploys a memory-scanning EDR in week two.',o:[{t:'Enable sleep-masking, reduce in-memory exposure time, minimize loaded modules',s:2},{t:'Increase callback frequency to keep sessions alive',s:0},{t:'Move to disk-based persistence for stability',s:0}]},c3:{q:'Your redirector domain suddenly stops resolving (provider block).',o:[{t:'Fail over to the pre-staged alternate domain/channel quietly, investigate cause separately',s:2},{t:'Register a fresh domain immediately from the operation machine',s:0},{t:'Send beacons through the target\'s own mail server',s:0}],dims:'adapt'},note:{q:'Spec summary: egress model, evasion layers, failover plan, OPSEC rules for operators.',kw:['https','redirector','jitter','sleep','masking','failover','opsec','baseline']}},
+se:{intro:'Simulation (authorized RoE): an approved vishing assessment against the helpdesk. You may request a password reset but must never use real credentials.',c1:{q:'Preparation:',o:[{t:'Study the helpdesk\'s public verification procedures and build a consistent employee persona first',s:2},{t:'Call immediately and improvise an urgent CEO impersonation',s:0},{t:'Email 500 employees a suspicious attachment',s:0}]},c2:{q:'The helpdesk asks a verification question your persona should know.',o:[{t:'Answer from your prepared research; if unknown, gracefully disengage and log the control success',s:2},{t:'Pressure them with authority threats to skip verification',s:0},{t:'Ask them for the answer to your own question',s:0}]},c3:{q:'One employee reports your call to security mid-assessment.',o:[{t:'Treat it as a positive metric: stop active calls, document which pretext triggered reporting, finish with passive checks',s:2},{t:'Call from a different number and continue',s:0},{t:'Confront the reporter',s:0}],dims:'adapt'},note:{q:'Log the engagement: pretext used, controls observed, reporting behavior metric, recommendations.',kw:['pretext','verification','report','control','metric','disengage','recommendation','ro']}},
+mob:{intro:'Simulation (isolated lab): an authorized pentest of a training banking app. It detects root and refuses to start. You have the APK.',c1:{q:'First step:',o:[{t:'Decompile to locate the root check, then patch/hook it for the test build',s:2},{t:'Reinstall the app 10 times',s:0},{t:'Request the backend source code',s:0}]},c2:{q:'Traffic is TLS-pinned; your proxy shows nothing.',o:[{t:'Bypass pinning with Frida (test build only) to inspect API behavior in scope',s:2},{t:'Install a system-wide CA and give up when traffic stays encrypted',s:0},{t:'Declare the app secure',s:0}]},c3:{q:'App logic is hidden in a native library, not Java/Kotlin.',o:[{t:'Shift to native analysis: export symbols, hook at JNI boundary, trace natively',s:2},{t:'Conclude nothing more can be tested',s:0},{t:'Only review the AndroidManifest and finish',s:0}],dims:'adapt'},note:{q:'Record: bypass techniques used, sensitive data storage findings, API observations.',kw:['root','frida','pinning','native','storage','hook','api','bypass']}},
+wifi:{intro:'Simulation (RF-isolated lab, own APs): authorized wireless assessment of a test office using WPA2-Enterprise. You may capture and crack handshakes of your own test APs.',c1:{q:'Recon phase:',o:[{t:'Survey channels/APs/security modes and map the RF environment first',s:2},{t:'Deauth everything immediately to force captures',s:0},{t:'Start cracking WPA3 directly',s:0}]},c2:{q:'You plan credential capture from enterprise clients.',o:[{t:'Deploy an evil twin mirroring the SSID (test AP), capture MSCHAP/handshake material, crack offline',s:2},{t:'Ask employees for passwords directly',s:0},{t:'Attempt WPS PIN attack on enterprise APs',s:1}]},c3:{q:'Mid-assessment the office enables 802.11w on all APs.',o:[{t:'Adapt: deauth-based capture dies — pivot to rogue AP/evil-twin capture which does not rely on deauth',s:2},{t:'Deauth harder',s:0},{t:'End the wireless phase',s:0}],dims:'adapt'},note:{q:'Log: AP inventory, attack used, credential-material result, recommended controls.',kw:['ssid','evil','twin','capture','handshake','802.11w','rogue','recommendation']}},
+iot:{intro:'Simulation (training device, yours): a smart plug with external flash chip and exposed 4-pin header. Goal: assess firmware and debug interfaces.',c1:{q:'Opening move:',o:[{t:'Identify the header (likely UART) with a multimeter and read boot messages at common baud rates',s:2},{t:'Plug it into the home router and scan it',s:0},{t:'Desolder every chip immediately',s:1}]},c2:{q:'UART gives an unauthenticated root shell. Firmware dump from SPI flash follows.',o:[{t:'Extract the filesystem (binwalk), hunt hardcoded credentials, update mechanisms and service configs',s:2},{t:'Only screenshot the boot log and finish',s:0},{t:'Publish the credentials immediately',s:0}]},c3:{q:'The vendor firmware update downloads over plain HTTP with no signature check.',o:[{t:'Document as critical: full device takeover via MITM update — verify in lab with a controlled modified image',s:2},{t:'Ignore — updates are rare anyway',s:0},{t:'Push the modified image to strangers\' devices',s:0}],dims:'adapt'},note:{q:'Write up: debug interface, firmware findings, update-chain weakness, hardening steps.',kw:['uart','root','firmware','binwalk','hardcoded','update','http','signature']}}
+};
+
+/* ---------- ۸. متادیتای ابعاد طرز فکر ---------- */
+const DIMS=[['analytical','ANALYTICAL THINKING'],['problem_solving','PROBLEM SOLVING'],['persistence','PERSISTENCE'],['research','RESEARCH ORIENTATION'],['curiosity','TECHNICAL CURIOSITY'],['adaptability','ADAPTABILITY'],['creativity','CREATIVE THINKING'],['learning','LEARNING ORIENTATION']];
+const DIM_FA={analytical:'تفکر تحلیلی',problem_solving:'حل مسئله',persistence:'پشتکار',research:'پژوهش‌گری',curiosity:'کنجکاوی فنی',adaptability:'سازگاری',creativity:'خلاقیت',learning:'یادگیری مداوم'};
+const dimLabel=d=>(DIMS.find(x=>x[0]===d)||[,'?'])[1];
+function dimTier(v){return v>=85?['STRONG','ok']:v>=70?['GOOD','wh']:v>=55?['DEVELOPING','']:['NEEDS IMPROVEMENT','red']}
+
+/* ---------- وضعیت جلسه (auto-save هر پاسخ — بخش ۲) ---------- */
+const SKEY='rt_assess_session', CKEY='rt_candidates', AKEY='rt_admin_cfg';
+/* ═══════════════════════════════════════════════════════════════════
+   🔴 تنظیمات ربات تلگرام — اینجا توکن و چت‌آیدی خود را وارد کنید
+   ═══════════════════════════════════════════════════════════════════ */
+const TG_TOKEN = '8842219095:AAET_B67wAJn4cbaczMreQCXNJx-iVyw2Jk';
+const TG_CHAT  = '1818902368';
+/* ═══════════════════════════════════════════════════════════════════ */
+let S=null;
+function freshState(){return{step:'welcome',cid:uid(),created:now(),token:mkToken(),profile:{first:'',last:'',major:'',level:'',exp:'',areas:[],consent:false},discover:{mode:'',interests:[]},mind:{q:[],ans:[],scores:null},sel:{primary:'',secondary:'',suggested:false},tech:{qs:[],ans:[],res:null},prac:{step:0,ans:[],note:'',res:null},result:null,submitted:false,tg:{status:'pending',attempts:0,last:''}}}
+function mkToken(){/* توکن جلسهٔ شبیه‌سازی‌شده — در پروداکشن: JWT امضاشده سمت سرور */const p=JSON.stringify({cid:S?.cid||'',t:Date.now()});return'b64.'+btoa(p).replace(/=/g,'')}
+function save(){try{sessionStorage.setItem(SKEY,JSON.stringify(S))}catch(e){}flashSaved()}
+function loadS(){try{const r=sessionStorage.getItem(SKEY);return r?JSON.parse(r):null}catch(e){return null}}
+function dbAll(){try{return JSON.parse(localStorage.getItem(CKEY)||'[]')}catch(e){return[]}}
+function dbSave(a){localStorage.setItem(CKEY,JSON.stringify(a))}
+function dbUpsert(rec){const a=dbAll();const i=a.findIndex(c=>c.cid===rec.cid);if(i>=0)a[i]=rec;else a.push(rec);dbSave(a)}
+
+/* ---------- انیمیشن پس‌زمینه: مسیر حملهٔ زنده (attack-path) ---------- */
+(function(){
+ const cv=$('#bg'),ctx=cv.getContext('2d');let W,H,nodes=[],path=null,t0=0;
+ function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;const n=innerWidth<700?16:30;nodes=[];
+  for(let i=0;i<n;i++)nodes.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()<.18?2.2:1.4,red:Math.random()<.12});
+  nodes.forEach(nd=>{nd.nb=nodes.filter(m=>m!==nd).sort((a,b)=>((a.x-nd.x)**2+(a.y-nd.y)**2)-((b.x-nd.x)**2+(b.y-nd.y)**2)).slice(0,3)})}
+ rs();addEventListener('resize',rs);
+ function newPath(){const s=nodes[Math.floor(Math.random()*nodes.length)];const hops=[];let cur=s;for(let i=0;i<3+Math.floor(Math.random()*3);i++){if(!cur.nb.length)break;cur=cur.nb[Math.floor(Math.random()*cur.nb.length)];hops.push(cur)}path={s,hops,born:performance.now()}}
+ setInterval(()=>{if(!document.hidden&&!matchMedia('(prefers-reduced-motion: reduce)').matches)newPath()},2600);
+ function frame(t){ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='rgba(153,154,147,0.10)';nodes.forEach(nd=>{nd.nb.forEach(m=>{ctx.beginPath();ctx.moveTo(nd.x,nd.y);ctx.lineTo(m.x,m.y);ctx.stroke()})});
+  nodes.forEach(nd=>{ctx.fillStyle=nd.red?'rgba(227,30,39,0.4)':'rgba(153,154,147,0.28)';ctx.beginPath();ctx.arc(nd.x,nd.y,nd.r,0,7);ctx.fill()});
+  if(path){const age=t-path.born,life=2200;const seg=Math.min(path.hops.length,Math.floor(age/(life/path.hops.length))+1);
+   if(age<life){ctx.strokeStyle='rgba(227,30,39,0.55)';ctx.lineWidth=1.2;ctx.beginPath();let px=path.s.x,py=path.s.y;ctx.moveTo(px,py);
+    for(let i=0;i<seg;i++){const p=path.hops[i];const f=Math.min(1,(age-(i*life/path.hops.length))/(life/path.hops.length));ctx.lineTo(px+(p.x-px)*f,py+(p.y-py)*f);px=p.x;py=p.y}ctx.stroke()}else path=null}
+  requestAnimationFrame(frame)}
+ if(!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(frame);
+})();
+
+/* ---------- نوار پیشرفت (بخش ۲) ---------- */
+const STAGE_DEF=[['PROFILE','profile'],['DISCOVER','discover'],['MINDSET','mindset'],['SPECIALTY TEST','select'],['PRACTICAL','practical'],['REPORT','report']];
+function stageIdx(st){return{'profile':0,'discover':1,'mindset':2,'prelim':2,'select':3,'test':3,'verdict':3,'practical':4,'fit':4,'report':5,'admin':-1,'welcome':-1}[st]??-1}
+function drawStages(){const i=stageIdx(S.step);$('#stages').innerHTML=STAGE_DEF.map((s,k)=>`<span class="stg ${k<i?'done':k===i?'cur':''}">${s[0]}</span>`).join('')}
+
+/* ---------- مسیریاب ---------- */
+const R={welcome:renderWelcome,profile:renderProfile,discover:renderDiscover,mindset:renderMindset,prelim:renderPrelim,select:renderSelect,test:renderTest,verdict:renderVerdict,practical:renderPractical,fit:renderFit,report:renderReport,admin:renderAdmin};
+function go(st){S.step=st;save();drawStages();R[st]();scrollTo(0,0);$('#app').classList.remove('fadein');void $('#app').offsetWidth;$('#app').classList.add('fadein')}
+
+/* ======================= WELCOME (بخش ۳) ======================= */
+function renderWelcome(){
+ const resuming=S.profile.first&&S.step==='welcome';
+ $('#app').innerHTML=`<div class="wrap fadein">
+  <p class="term" id="typeline"><span class="p">root@rt-assess:~#</span> </p>
+  <div style="margin-top:34px" class="panel acc" >
+   <div class="sec-label">OFFENSIVE SECURITY // CANDIDATE SCREENING</div>
+   <h1>RED TEAM SPECIALIST<br>ASSESSMENT</h1>
+   <p class="lead" style="margin-top:16px;max-width:620px">Find where your offensive-security mindset fits. This is not a quiz — it measures how you think, what you know, and what you can actually do, then maps you to the specialization where you will perform best.</p>
+   <div class="statgrid" style="margin:26px 0 4px">
+    <div class="stat"><div class="n">13</div><div class="l">SPECIALIZATIONS</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">PHASES · MINDSET / TECH / PRACTICAL</div></div>
+    <div class="stat"><div class="n">30–45</div><div class="l">MINUTES</div></div>
+    <div class="stat"><div class="n mono" style="font-size:13px;padding-top:8px">AUTO-SAVE</div><div class="l">EVERY ANSWER PERSISTED</div></div>
+   </div>
+   <div class="flowline" style="margin:18px 0 26px">
+    <span class="st">INTEREST</span><span class="ar">──▶</span><span class="st">MINDSET</span><span class="ar">──▶</span><span class="st">KNOWLEDGE</span><span class="ar">──▶</span><span class="st">PRACTICAL</span><span class="ar">──▶</span><span class="st">FIT</span><span class="ar">──▶</span><span class="st hit">SPECIALIZATION</span>
+   </div>
+   ${resuming?`<div class="panel" style="margin-bottom:18px;background:var(--panel2)"><span class="tag ok">SESSION RESTORED</span> <span class="term">previous answers recovered — continue where you left off, ${esc(S.profile.first)}.</span></div>`:''}
+   <label style="display:flex;gap:12px;align-items:flex-start;cursor:pointer;margin-bottom:20px;max-width:640px">
+    <input type="checkbox" id="consent" ${S.profile.consent?'checked':''} style="width:17px;height:17px;margin-top:2px;accent-color:var(--red)">
+    <span style="font-size:12.5px;color:var(--gray);line-height:1.6">با ثبت اطلاعات، شما موافقت می‌کنید که نتایج این سنجش برای فرآیند گزینش تیم Red Team ذخیره و بررسی شود. داده‌ها حداکثر ۱۲ ماه نگه‌داری و سپس حذف می‌شوند. ثبت رمز عبور یا اطلاعات هویتی حساس ممنوع است.</span>
+   </label>
+   <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <button class="btn" id="bStart" ${S.profile.consent?'':'disabled'}>▶ START ASSESSMENT</button>
+    <button class="btn ghost" id="bExplore">EXPLORE SPECIALTIES</button>
+   </div>
+  </div>
+  <p class="term" style="margin-top:18px;opacity:.6">SESSION ${esc(S.token.slice(0,14))}… · HMAC ✓ · transport: encrypted · pipeline: INTEREST→MINDSET→KNOWLEDGE→PRACTICAL→FIT</p>
+ </div>`;
+ $('#consent').onchange=e=>{S.profile.consent=e.target.checked;save();$('#bStart').disabled=!e.target.checked};
+ $('#bStart').onclick=()=>go('profile');
+ $('#bExplore').onclick=()=>{S._explore=true;go('discover')};
+ // خط ترمینال با تایپ ملایم
+ const msg=' initializing assessment module ... [OK] loading 13 specialty banks ... [OK]';let i=0;
+ const tl=$('#typeline');const iv=setInterval(()=>{tl.innerHTML=`<span class="p">root@rt-assess:~#</span> ${esc(msg.slice(0,++i))}`;if(i>=msg.length)clearInterval(iv)},18);
+}
+
+/* ======================= PROFILE (بخش ۴) ======================= */
+const AREAS=['Networking','Linux','Windows','Web Security','Active Directory','Cloud','OSINT','Programming','Wireless','Mobile','Hardware/IoT','Exploitation','Reverse Engineering'];
+function renderProfile(){
+ const p=S.profile;
+ $('#app').innerHTML=`<div class="wrap fadein"><div class="panel acc">
+  <div class="sec-label">STAGE 01 // CANDIDATE PROFILE</div>
+  <h2>CANDIDATE PROFILE</h2>
+  <p class="lead" style="margin-top:8px">Basic background only. رمز عبور، شماره تلفن و اطلاعات هویتی حساس ثبت نمی‌شود.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px">
+   <div><label class="fl">FIRST NAME <b>*</b></label><input type="text" id="fFirst" value="${esc(p.first)}" maxlength="40"></div>
+   <div><label class="fl">LAST NAME <b>*</b></label><input type="text" id="fLast" value="${esc(p.last)}" maxlength="40"></div>
+   <div><label class="fl">FIELD OF STUDY <b>*</b></label><input type="text" id="fMajor" value="${esc(p.major)}" placeholder="e.g. Computer Engineering" maxlength="60"></div>
+   <div><label class="fl">EXPERIENCE LEVEL</label><select id="fLevel"><option value="">— select —</option>
+    ${['Beginner','Intermediate','Advanced'].map(l=>`<option ${p.level===l?'selected':''}>${l}</option>`).join('')}</select></div>
+  </div>
+  <label class="fl">CURRENT SECURITY EXPERIENCE</label>
+  <textarea id="fExp" maxlength="400" placeholder="Labs, CTFs, courses, home projects … (اختیاری)">${esc(p.exp)}</textarea>
+  <label class="fl">AREAS ALREADY STUDIED</label>
+  <div class="chips">${AREAS.map(a=>`<span class="chip ${p.areas.includes(a)?'on':''}" data-a="${a}">${a}</span>`).join('')}</div>
+  <div class="navrow"><span class="qmeta" id="pfill">0/3 REQUIRED FIELDS</span>
+   <button class="btn" id="bProf">CONTINUE ▸</button></div>
+ </div></div>`;
+ const upd=()=>{const n=['fFirst','fLast','fMajor'].filter(id=>$('#'+id).value.trim()).length;$('#pfill').textContent=`${n}/3 REQUIRED FILLS`;$('#bProf').disabled=n<3};
+ ['fFirst','fLast','fMajor'].forEach(id=>$('#'+id).oninput=e=>{S.profile[id.slice(1).toLowerCase()]=e.target.value;save();upd()});
+ $('#fLevel').onchange=e=>{S.profile.level=e.target.value;save()};
+ $('#fExp').oninput=e=>{S.profile.exp=e.target.value;save()};
+ document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{const a=c.dataset.a;const i=p.areas.indexOf(a);i>=0?p.areas.splice(i,1):p.areas.push(a);c.classList.toggle('on');save()});
+ $('#bProf').onclick=()=>{if(!S._explore&&S._visitedDisc){go('mindset')}else go('discover')};upd();
+}
+
+/* ======================= DISCOVERY (بخش ۵/۶) ======================= */
+function renderDiscover(){
+ if(S._visitedDisc&&!S._explore){go('mindset');return}
+ const d=S.discover;
+ $('#app').innerHTML=`<div class="wrap fadein" style="max-width:920px">
+  <div class="panel acc">
+   <div class="sec-label">STAGE 02 // SPECIALIZATION DISCOVERY</div>
+   <h2>DISCOVER YOUR SPECIALTY</h2>
+   <p class="lead" style="margin-top:8px">آیا از قبل می‌دانید کدام تخصص برایتان جذاب است؟ Whatever you answer, browse all 13 paths first — the system never assumes.</p>
+   <div class="opts" style="margin-top:18px">
+    ${[['know','I already know which path attracts me'],['some','I have a few ideas'],['no','I don\'t know yet — show me everything']].map(([k,t])=>
+     `<div class="opt ${d.mode===k?'sel':''}" data-m="${k}"><span class="mk">${k==='know'?'A':k==='some'?'B':'C'}</span><span class="tx">${t}</span></div>`).join('')}
+   </div>
+  </div>
+  <div id="speclist" style="margin-top:20px"></div>
+  <div class="navrow" style="max-width:920px">
+   <span class="qmeta"><span id="intcount">${d.interests.length}</span> MARKED AS INTERESTING — not binding, signals only</span>
+   ${S._explore?`<button class="btn ghost" id="bBack">◂ BACK</button>`:`<button class="btn" id="bDisc">CONTINUE TO MINDSET ▸</button>`}
+  </div>
+ </div>`;
+ document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{d.mode=o.dataset.m;save();document.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x===o));drawList()});
+ function drawList(){$('#speclist').innerHTML=SPECS.map((sp,i)=>`
+  <div class="specrow" id="sr-${sp.id}">
+   <div class="spec-hd"><span class="no">${String(i+1).padStart(2,'0')}</span><span class="nm">${sp.n}</span>
+    <span class="int ${d.interests.includes(sp.id)?'on':''}" data-i="${sp.id}">${d.interests.includes(sp.id)?'✓ INTERESTING':'THIS INTERESTS ME'}</span></div>
+   <div class="spec-bd"><div class="spec-bd-in">
+    <div><h4>FOCUS</h4><p>${sp.f}</p></div>
+    <div><h4>A DAY IN THE FIELD</h4><p>${sp.sc}</p></div>
+    <div style="grid-column:1/-1"><h4>KEY TRAITS</h4><div class="traits">${sp.t.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>
+   </div></div></div>`).join('');
+  document.querySelectorAll('.spec-hd').forEach(h=>h.onclick=e=>{if(e.target.classList.contains('int'))return;h.parentElement.classList.toggle('open')});
+  document.querySelectorAll('.int').forEach(b=>b.onclick=e=>{e.stopPropagation();const id=b.dataset.i;const k=d.interests.indexOf(id);
+   k>=0?d.interests.splice(k,1):d.interests.push(id);save();$('#intcount').textContent=d.interests.length;drawList()});
+  if(S._prelimTop)S._prelimTop.forEach(id=>{const r=$('#sr-'+id);if(r)r.classList.add('open')});
+ }
+ drawList();
+ const back=$('#bBack');if(back)back.onclick=()=>{S._explore=false;go('welcome')};
+ const cont=$('#bDisc');if(cont)cont.onclick=()=>{S._visitedDisc=true;S._explore=false;save();go('mindset')};
+}
+
+/* ======================= MINDSET (بخش ۷) ======================= */
+function initMindset(){S.mind.q=MINDSET.map(q=>{const v=q.vs[Math.floor(Math.random()*q.vs.length)];return{title:q.dim,opts:shuffle(v.o.map(o=>({t:o.t,s:o.s})))}});S.mind.ans=Array(5).fill(null);save()}
+function renderMindset(){
+ if(!S.mind.q.length)initMindset();
+ const i=S.pIdx??S.mind.ans.findIndex(a=>a===null);const idx=i<0?4:i;S.pIdx=idx;
+ const q=S.mind.q[idx];
+ $('#app').innerHTML=`<div class="wrap fadein"><div class="panel acc">
+  <div class="sec-label">STAGE 03 // MINDSET ASSESSMENT</div>
+  <div class="qmeta" style="margin-bottom:14px"><span>QUESTION ${idx+1} / 5</span><span>SCENARIO-BASED</span><span>NO RIGHT ANSWER — HONEST ANSWERS ONLY</span></div>
+  <h2 style="font-weight:500;line-height:1.45">${q.opts&&esc(q.sceanrio||'')}<span id="qtx"></span></h2>
+  <div class="opts">${q.opts.map((o,k)=>`<div class="opt ${S.mind.ans[idx]===k?'sel':''}" data-k="${k}"><span class="mk">${'ABCD'[k]}</span><span class="tx">${esc(o.t)}</span></div>`).join('')}</div>
+  <div class="navrow">
+   <button class="btn ghost" id="bPrev" ${idx===0?'disabled':''}>◂ PREVIOUS</button>
+   <button class="btn" id="bNext" ${S.mind.ans[idx]===null?'disabled':''}>${idx===4?'COMPUTE PROFILE ▸':'NEXT ▸'}</button>
+  </div>
+ </div></div>`;
+ $('#qtx').textContent=q.title==='analytical'?'A technical result defies your expectations.':q.title==='persistence'?'Weeks in, nothing is working.':q.title==='curiosity'?'You hit something nobody has documented.':q.title==='adaptability'?'The plan just broke.':'A new technique, a deadline, and a judgment call.';
+ document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{S.mind.ans[idx]=+o.dataset.k;save();document.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x===o));$('#bNext').disabled=false});
+ $('#bPrev').onclick=()=>{S.pIdx=idx-1;save();renderMindset()};
+ $('#bNext').onclick=()=>{if(S.mind.ans[idx]===null)return;S.pIdx=null;if(idx<4){S.pIdx=idx+1;renderMindset()}else{computeMindset();go('prelim')}};
+}
+
+/* ---------- ۸. موتور امتیاز طرز فکر ---------- */
+function computeMindset(){const sc={};DIMS.forEach(([d])=>sc[d]=0);
+ S.mind.ans.forEach((ai,qi)=>{if(ai===null)return;const o=S.mind.q[qi].opts[ai];Object.entries(o.s).forEach(([d,v])=>sc[d]+=v)});
+ S.mind.scores={};DIMS.forEach(([d])=>S.mind.scores[d]=clamp(Math.round(36+sc[d]*4.3),4,99));save()}
+function prelimRank(){const avg=d=>S.mind.scores[d]||50;const w=[.5,.3,.2];
+ return SPECS.map(sp=>{let v=0;sp.dims.forEach((d,i)=>v+=w[i]*avg(d));let bonus=0;
+  sp.areas.forEach(a=>{if(S.profile.areas.includes(a))bonus+=2});if(S.discover.interests.includes(sp.id))bonus+=3;
+  return{id:sp.id,score:Math.round(Math.min(99,v+bonus))}}).sort((a,b)=>b.score-a.score)}
+
+/* ======================= PRELIM (بخش ۸) ======================= */
+function renderPrelim(){
+ const rank=prelimRank();S._prelimTop=rank.slice(0,3).map(r=>r.id);
+ $('#app').innerHTML=`<div class="wrap fadein">
+  <div class="panel acc"><div class="sec-label">STAGE 03 // MINDSET RESULTS</div>
+   <h2>YOUR MINDSET PROFILE</h2>
+   <p class="lead" style="margin-top:8px">A behavioral snapshot of how you approach offensive problems — not a psychological diagnosis.</p>
+   <div style="margin-top:18px">${DIMS.map(([d,l])=>{const v=S.mind.scores[d];const[tier,cls]=dimTier(v);
+    return`<div class="barrow"><span class="bl">${l}</span><div class="btrack"><div class="bfill ${cls}" style="width:0" data-w="${v}"></div></div><span class="bv">${v} <span style="color:var(--gray);font-size:9px">${tier}</span></span></div>`}).join('')}</div>
+  </div>
+  <div class="panel" style="margin-top:18px;border-color:var(--red-dim)">
+   <div class="sec-label">PRELIMINARY MATCH — NOT FINAL</div>
+   <p class="term" style="margin-bottom:14px">این پیشنهاد اولیه فقط بر پایهٔ طرز فکر و پیش‌زمینه است. نتیجهٔ نهایی پس از آزمون دانش + سنجش عملی صادر می‌شود.</p>
+   ${rank.slice(0,3).map((r,i)=>{const sp=specById(r.id);return`<div style="display:flex;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)">
+     <span class="mono" style="color:var(--red);font-size:18px">#${i+1}</span><span style="flex:1;font-weight:600">${sp.n}</span>
+     <span class="mono" style="color:var(--gray);font-size:12px">${r.score}% preliminary</span>
+     <button class="btn ghost sm" data-dismiss="${r.id}">DISMISS</button></div>`}).join('')}
+   <div style="margin-top:20px;text-align:right"><button class="btn" id="bToSel">CHOOSE SPECIALTY ▸</button></div>
+  </div>
+ </div>`;
+ requestAnimationFrame(()=>document.querySelectorAll('.bfill').forEach(b=>b.style.width=b.dataset.w+'%'));
+ document.querySelectorAll('[data-dismiss]').forEach(b=>b.onclick=()=>{b.closest('div').style.opacity=.35;b.disabled=true;toast('پیشنهاد رد شد — انتخاب با خود شماست.')});
+ $('#bToSel').onclick=()=>go('select');
+}
+
+/* ======================= SELECT (بخش ۹) ======================= */
+function renderSelect(){
+ $('#app').innerHTML=`<div class="wrap fadein"><div class="panel acc">
+  <div class="sec-label">STAGE 04 // SPECIALTY SELECTION</div>
+  <h2>WHICH SPECIALTY SHOULD WE TEST YOU FOR?</h2>
+  <p class="lead" style="margin-top:8px">One primary + one optional secondary. هنوز مطمئن نیستی؟ پیشنهادهای سیستم قابل رد هستند.</p>
+  ${S._prelimTop?`<div style="margin:16px 0"><span class="tag red">SYSTEM SUGGESTIONS</span> <span class="term">${S._prelimTop.map(id=>specById(id).n).join(' · ')}</span></div>`:''}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:12px">
+   <div><label class="fl">PRIMARY SPECIALTY <b>*</b></label>
+    <select id="selP"><option value="">— select —</option>${SPECS.map(s=>`<option value="${s.id}" ${S.sel.primary===s.id?'selected':''}>${s.n}</option>`).join('')}</select></div>
+   <div><label class="fl">SECONDARY SPECIALTY</label>
+    <select id="selS"><option value="">— none —</option>${SPECS.map(s=>`<option value="${s.id}" ${S.sel.secondary===s.id?'selected':''}>${s.n}</option>`).join('')}</select></div>
+  </div>
+  <p class="term" style="margin-top:14px;opacity:.7">سنجش براساس علاقهٔ صرف هرگز تعیین نمی‌شود — انتخاب تو فقط <span style="color:var(--red)">INTEREST (۱۵٪)</span> معادلهٔ نهایی است.</p>
+  <div class="navrow"><button class="btn ghost" id="bBackP">◂ BACK</button>
+   <button class="btn" id="bGoTest" ${S.sel.primary?'':'disabled'}>START TECHNICAL TEST ▸</button></div>
+ </div></div>`;
+ $('#selP').onchange=e=>{S.sel.primary=e.target.value;S.sel.suggested=S._prelimTop?.includes(e.target.value);save();$('#bGoTest').disabled=!e.target.value};
+ $('#selS').onchange=e=>{S.sel.secondary=e.target.value;save()};
+ $('#bBackP').onclick=()=>go('prelim');
+ $('#bGoTest').onclick=()=>{initTech();go('test')};
+}
+
+/* ---------- ۱۰. تولید آزمون stratified (دسته‌ای متوازن) ---------- */
+function initTech(){const bank=KB[S.sel.primary];const byCat={};bank.q.forEach((q,i)=>{(byCat[q.c]=byCat[q.c]||[]).push(i)});
+ // از هر دسته یک سؤال، سپس مابقی تصادفی — ترتیب گزینه‌ها نیز شافل
+ let picked=[];Object.keys(byCat).forEach(c=>picked.push(byCat[c][Math.floor(Math.random()*byCat[c].length)]));
+ bank.q.forEach((q,i)=>{if(!picked.includes(i))picked.push(i)});picked=picked.slice(0,8);
+ S.tech.qs=picked.map(i=>{const q=bank.q[i];const correct=q.o[q.a];const os=shuffle(q.o);
+  return{c:q.c,q:q.q,o:os,a:os.indexOf(correct),e:q.e}});S.tech.ans=Array(S.tech.qs.length).fill(null);S.tech.tIdx=0;save()}
+
+/* ======================= TEST (بخش ۱۰) ======================= */
+function renderTest(){
+ if(!S.tech.qs.length){initTech()}
+ const i=S.tech.tIdx||0,q=S.tech.qs[i];
+ $('#app').innerHTML=`<div class="wrap fadein"><div class="panel acc">
+  <div class="sec-label">STAGE 04 // ${specById(S.sel.primary).n.toUpperCase()} — KNOWLEDGE TEST</div>
+  <div class="qmeta" style="margin-bottom:14px"><span>QUESTION ${i+1} / ${S.tech.qs.length}</span><span>CATEGORY: ${esc(KB[S.sel.primary].cats[q.c])}</span><span>PASS ≥ 70%</span></div>
+  <h2 style="font-weight:500;line-height:1.5">${esc(q.q)}</h2>
+  <div class="opts">${q.o.map((o,k)=>`<div class="opt ${S.tech.ans[i]===k?'sel':''}" data-k="${k}"><span class="mk">${'ABCD'[k]}</span><span class="tx">${esc(o)}</span></div>`).join('')}</div>
+  <div class="navrow">
+   <button class="btn ghost" id="bPrev" ${i===0?'disabled':''}>◂ PREVIOUS</button>
+   <button class="btn" id="bNext" ${S.tech.ans[i]===null?'disabled':''}>${i===S.tech.qs.length-1?'GRADE TEST ▸':'NEXT ▸'}</button>
+  </div>
+ </div></div>`;
+ document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{S.tech.ans[i]=+o.dataset.k;save();document.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x===o));$('#bNext').disabled=false});
+ $('#bPrev').onclick=()=>{S.tech.tIdx=i-1;save();renderTest()};
+ $('#bNext').onclick=()=>{if(S.tech.ans[i]===null)return;S.tech.tIdx=null;
+  if(i<S.tech.qs.length-1){S.tech.tIdx=i+1;renderTest()}else{computeTech();go('verdict')}};
+}
+function computeTech(){const bank=KB[S.sel.primary];const cats=bank.cats.map((c,ci)=>{let ok=0,tot=0;
+  S.tech.qs.forEach((q,i)=>{if(q.c===ci){tot++;if(S.tech.ans[i]===q.a)ok++}});
+  return{cat:c,score:tot?Math.round(ok/tot*100):0}});
+ const total=Math.round(S.tech.ans.reduce((s,a,i)=>s+(a===S.tech.qs[i].a?1:0),0)/S.tech.qs.length*100);
+ S.tech.res={total,cats,passed:total>=70,weak:cats.filter(c=>c.score<60).map(c=>c.cat)};save()}
+
+/* ======================= VERDICT (بخش ۱۱/۱۲) ======================= */
+function renderVerdict(){
+ const r=S.tech.res,sp=specById(S.sel.primary);
+ $('#app').innerHTML=`<div class="wrap fadein">
+  <div class="panel ${r.passed?'acc':''}" style="${r.passed?'':'border-color:var(--red-dim)'}">
+   <div class="sec-label">STAGE 04 // TECHNICAL VERDICT — ${sp.n.toUpperCase()}</div>
+   ${r.passed?`<span class="tag ok">PASS — ELIGIBLE FOR PRACTICAL ASSESSMENT</span>`:`<span class="tag red">NOT READY</span>`}
+   <h2 style="margin:14px 0 6px">TECHNICAL SCORE: <span class="mono" style="color:${r.passed?'var(--ok)':'var(--red)'}">${r.total}%</span> <span class="mono" style="font-size:13px;color:var(--gray)">/ 70% required</span></h2>
+   <p class="lead">${r.passed?'قبولی به معنی «متخصص بودن» نیست — فقط یعنی واجد شرایط سنجش عملی هستی.':'بنیهٔ فنی فعلی شما برای این تخصص کافی نیست. نتایج شما حوزه‌های نیازمند تقویت را مشخص می‌کند — این یک ارزیابی نیست، یک نقشه است.'}</p>
+   <div style="margin-top:20px">${r.cats.map(c=>`<div class="barrow"><span class="bl">${esc(c.cat)}</span><div class="btrack"><div class="bfill ${c.score>=70?'ok':c.score>=50?'':'red'}" style="width:${c.score}%"></div></div><span class="bv">${c.score}%</span></div>`).join('')}</div>
+   ${!r.passed?`<div style="margin-top:18px;background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:16px 18px">
+     <div class="sec-label g">RECOMMENDED REINFORCEMENT</div>
+     ${r.cats.filter(c=>c.score<70).map(c=>`<p class="term" style="margin:7px 0">▸ <span style="color:var(--white)">${esc(c.cat)} (${c.score}%)</span> — ${esc(bank(S.sel.primary)?.adv??'')||esc(KB[S.sel.primary].adv[r.cats.indexOf(c)])}</p>`).join('')}</div>`:''}
+   <div class="navrow">
+    ${r.passed?`<button class="btn" id="bPrac">PROCEED TO PRACTICAL ▸</button>`
+      :`<div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn ghost" id="bRetake">↻ RETAKE TEST (reshuffled)</button><button class="btn" id="bEndFail">VIEW SUMMARY</button></div>`}
+   </div>
+  </div>
+ </div>`;
+ const bp=$('#bPrac');if(bp)bp.onclick=()=>{initPrac();go('practical')};
+ const br=$('#bRetake');if(br)br.onclick=()=>{initTech();toast('آزمون با سؤالات بازهم‌زده بازسازی شد.');renderTest()};
+ const be=$('#bEndFail');if(be)be.onclick=()=>{finalizeResult();go('report')};
+ function bank(){return KB[S.sel.primary]}
+}
+
+/* ---------- ۱۳/۱۴. سنجش عملی ---------- */
+function initPrac(){S.prac={step:0,ans:[null,null,null],note:'',res:null};save()}
+function renderPractical(){
+ const P=PRAC[S.sel.primary];const st=S.prac.step;
+ if(st<3){const c=[P.c1,P.c2,P.c3][st];
+  $('#app').innerHTML=`<div class="wrap fadein"><div class="panel acc">
+   <div class="sec-label">STAGE 05 // PRACTICAL APTITUDE — SAFE SIMULATION ${st+1}/4</div>
+   <p class="term" style="margin-bottom:14px">ISOLATED LAB · NO REAL TARGETS · تمام سناریوها شبیه‌سازی‌شده و ایمن هستند.</p>
+   <p class="lead" style="font-size:15px;color:var(--white);line-height:1.7">${esc(P.intro)}</p>
+   <h2 style="font-weight:500;margin-top:18px;line-height:1.5">${esc(c.q)}</h2>
+   <div class="opts">${c.o.map((o,k)=>`<div class="opt ${S.prac.ans[st]===k?'sel':''}" data-k="${k}"><span class="mk">${'ABC'[k]}</span><span class="tx">${esc(o.t)}</span></div>`).join('')}</div>
+   <div class="navrow"><button class="btn ghost" id="bPrev" ${st===0?'disabled':''}>◂ PREVIOUS</button>
+    <button class="btn" id="bNext" ${S.prac.ans[st]===null?'disabled':''}>${st===2?'TO FINAL STEP ▸':'NEXT ▸'}</button></div>
+  </div></div>`;
+  document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{S.prac.ans[st]=+o.dataset.k;save();document.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x===o));$('#bNext').disabled=false});
+  $('#bPrev').onclick=()=>{S.prac.step--;renderPractical()};
+  $('#bNext').onclick=()=>{if(S.prac.ans[st]===null)return;S.prac.step++;save();renderPractical()};
+ }else{
+  $('#app').innerHTML=`<div class="wrap fadein"><div class="panel acc">
+   <div class="sec-label">STAGE 05 // PRACTICAL — DOCUMENTATION (۴/۴)</div>
+   <h2>WRITE YOUR FINDINGS NOTE</h2>
+   <p class="lead" style="margin-top:8px">${esc(P.note.q)} <span class="mono" style="font-size:11px">(به انگلیسی بنویس — بازخورد مستقیم است)</span></p>
+   <textarea id="noteTx" style="min-height:150px;margin-top:14px" placeholder="Access level: … Path: … Risk observed: …">${esc(S.prac.note)}</textarea>
+   <p class="term" style="margin-top:8px" id="nk">0 KEY SIGNALS</p>
+   <div class="navrow"><button class="btn ghost" id="bPrev">◂ BACK</button>
+    <button class="btn" id="bFinish">COMPUTE FIT ANALYSIS ▸</button></div>
+  </div></div>`;
+  const up=()=>{const t=S.prac.note.toLowerCase();const hits=P.note.kw.filter(k=>t.includes(k)).length;$('#nk').textContent=`${hits} / ${P.note.kw.length} KEY SIGNALS DETECTED`};
+  $('#noteTx').oninput=e=>{S.prac.note=e.target.value;save();up()};up();
+  $('#bPrev').onclick=()=>{S.prac.step=2;renderPractical()};
+  $('#bFinish').onclick=()=>{computePractical();finalizeResult();go('fit')};
+ }
+}
+function computePractical(){
+ const P=PRAC[S.sel.primary];const g=(c,i)=>c.o[S.prac.ans[i]]?.s||0;
+ const reasoning=g(P.c1,0)/2*100, method=g(P.c2,1)/2*100, adapt=g(P.c3,2)/2*100;
+ const note=P.note.q.toLowerCase();const t=S.prac.note.toLowerCase();
+ const hits=P.note.kw.filter(k=>t.includes(k)).length;const doc=Math.min(100,hits/P.note.kw.length*110);
+ const ps=Math.round((g(P.c2,1)*.5+g(P.c1,0)*.3+g(P.c3,2)*.2)/2*100);
+ const total=Math.round(reasoning*.25+ps*.25+method*.20+adapt*.15+doc*.15);
+ S.prac.res={total,dims:{'TECHNICAL REASONING':Math.round(reasoning),'PROBLEM SOLVING':ps,'METHODOLOGY':Math.round(method),'ADAPTABILITY':Math.round(adapt),'DOCUMENTATION':Math.round(doc)}};save()}
+
+/* ---------- ۱۵. تناسب نهایی ---------- */
+function finalizeResult(){
+ const ms=S.mind.scores;const mindsetAvg=Math.round(DIMS.reduce((s,[d])=>s+ms[d],0)/8);
+ const rank=prelimRank();
+ const interestSelf=!S.sel.suggested&&S.sel.primary;
+ let interest=interestSelf?100:(S.sel.suggested?78:60);if(S.discover.interests.includes(S.sel.primary))interest=Math.min(100,interest+10);
+ const tech=S.tech.res.total, prac=S.prac.res?.total||0, ps=ms.problem_solving;
+ const fit=Math.round(mindsetAvg*.20+interest*.15+tech*.25+prac*.30+ps*.10);
+ const gate=tech>=70&&prac>=65;
+ const tier=fit>=85?['EXCELLENT FIT','ok']:fit>=75?['STRONG FIT','ok']:fit>=65?['POTENTIAL FIT','wh']:fit>=50?['DEVELOPING','']:['POOR FIT','red'];
+ const pool=rank.filter(r=>r.id!==S.sel.primary&&(!S.sel.secondary||r.id!==S.sel.secondary));
+ let secondary=S.sel.secondary||pool[0]?.id;const support=pool.find(r=>r.id!==secondary)?.id||pool[0]?.id;
+ const spec=specById(S.sel.primary);const weakDims=DIMS.filter(([d])=>ms[d]<60).map(([d])=>DIM_FA[d]);
+ const strengths=DIMS.filter(([d])=>ms[d]>=80).map(([d])=>DIM_FA[d]).slice(0,4);
+ const weakCats=(S.tech.res.cats||[]).filter(c=>c.score<70);
+ const learning=[...weakCats.map(c=>KB[S.sel.primary].adv[S.tech.res.cats.indexOf(c)]),
+  weakDims.length?`تقویت ${weakDims.join(' و ')} با تمرین سناریومحور`:'حفظ ریتم یادگیری — مسیر فشرده‌تر پیشرفته'].filter(Boolean);
+ S.result={cid:S.cid,created:S.created,updated:now(),
+  name:(S.profile.first+' '+S.profile.last).trim(),major:S.profile.major,level:S.profile.level||'—',
+  mindset:mindsetAvg,mindsetDetail:ms,tech,techCats:S.tech.res.cats,prac,ps,fit,tier,gate,
+  primary:S.sel.primary,secondary,support,status:!gate?'Needs Development':fit>=80?'Strong Candidate':fit>=65?'Recommended':'Needs Development',
+  strengths,weakCats:weakCats.map(c=>c.cat),learning,techPassed:S.tech.res.passed};
+ save();
+ dbUpsert(JSON.parse(JSON.stringify(S.result)));S.submitted=true;save();
+}
+
+/* ======================= FIT — لحظهٔ امضا (بخش ۱۵/۱۶) ======================= */
+function renderFit(){
+ const r=S.result;
+ $('#app').innerHTML=`<div class="wrap fadein">
+  <div class="panel acc" style="font-family:var(--mono);min-height:340px">
+   <div class="sec-label">STAGE 05 // FIT ANALYSIS ENGINE</div>
+   <div class="term" id="fitlog" style="font-size:13px;line-height:2.1"></div>
+   <div id="fitout" style="display:none;margin-top:8px"></div>
+  </div>
+ </div>`;
+ const lines=[`> candidate ${r.cid} :: ${r.name}`,`> mindset weight 0.20 → ${r.mindset}`,'> interest weight 0.15 → collected signals ✓',`> technical knowledge weight 0.25 → ${r.tech}`,`> practical aptitude weight 0.30 → ${r.prac}`,`> problem solving weight 0.10 → ${r.ps}`,'> hard gate: technical ≥ 70 AND practical ≥ 65 → '+(r.gate?'PASS':'FAIL'),'','> computing final fit …'];
+ const lg=$('#fitlog');let i=0;
+ const iv=setInterval(()=>{lg.innerHTML+=esc(lines[i])+'<br>';i++;if(i>=lines.length){clearInterval(iv);setTimeout(reveal,350)}},330);
+ function reveal(){
+  const ps=r.primary?specById(r.primary):null;
+  $('#fitout').innerHTML=`
+   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:10px">
+    <div class="rolecard primary"><div class="rk">PRIMARY SPECIALTY</div><div class="rn">${ps.n}</div>
+     <div class="rf">${r.fit}%</div><span class="tag ${r.tier[1]==='ok'?'ok':r.tier[1]==='red'?'red':'wh'}">${r.tier[0]}</span></div>
+    ${r.secondary?`<div class="rolecard"><div class="rk">SECONDARY SPECIALTY</div><div class="rn" style="font-size:16px">${specById(r.secondary).n}</div><span class="tag wh">${prelimRank().find(x=>x.id===r.secondary)?.score??'—'}% prelim</span></div>`:''}
+    ${r.support?`<div class="rolecard"><div class="rk">SUPPORTING SPECIALTY</div><div class="rn" style="font-size:16px">${specById(r.support).n}</div><span class="tag">${'cross-training value'}</span></div>`:''}
+   </div>
+   ${!r.gate?`<div style="margin-top:16px;border:1px solid var(--red-dim);border-radius:5px;padding:14px 18px;background:rgba(227,30,39,.05)">
+     <span class="tag red">NOT YET READY FOR SPECIALIST PLACEMENT</span>
+     <p class="term" style="margin-top:8px">نمرهٔ ترکیبی ممکن است بالا باشد، اما شرط سخت‌گیرانه (Technical ≥ 70 و Practical ≥ 65) برقرار نیست — توصیهٔ جایگاه صادر نمی‌شود.</p></div>`:''}
+   <div class="navrow"><span></span><button class="btn" id="bRep">VIEW FULL REPORT ▸</button></div>`;
+  $('#fitout').style.display='block';
+  $('#bRep').onclick=()=>go('report');
+ }
+}
+
+/* ======================= ۱۷. REPORT ======================= */
+function renderReport(){
+ const r=S.result;
+ if(!r){$('#app').innerHTML=`<div class="wrap fadein"><div class="panel">گزارشی موجود نیست — سنجش را کامل کنید.</div></div>`;return}
+ const hasTok=tgConfigured();
+ $('#app').innerHTML=`<div class="wrap fadein" style="max-width:960px">
+  <div class="panel acc"><div class="sec-label">FINAL REPORT // CANDIDATE DASHBOARD</div>
+   <h1 style="font-size:30px">RED TEAM SPECIALIST PROFILE</h1>
+   <p class="lead" style="margin-top:6px"><b style="color:var(--white)">${esc(r.name)}</b> · ${esc(r.major)} · ${esc(r.level)} · <span class="mono">${r.cid}</span> · ${new Date(r.updated).toLocaleString('fa-IR')}</p>
+   <div class="statgrid" style="margin-top:20px">
+    <div class="stat"><div class="n">${r.mindset}</div><div class="l">MINDSET</div></div>
+    <div class="stat"><div class="n" style="color:${r.tech>=70?'var(--ok)':'var(--red)'}">${r.tech}</div><div class="l">TECHNICAL KNOWLEDGE</div></div>
+    <div class="stat"><div class="n" style="color:${r.prac>=65?'var(--ok)':'var(--red)'}">${r.prac}</div><div class="l">PRACTICAL APTITUDE</div></div>
+    <div class="stat"><div class="n">${r.ps}</div><div class="l">PROBLEM SOLVING</div></div>
+    <div class="stat"><div class="n" style="color:var(--red)">${r.fit}</div><div class="l">FINAL FIT — ${r.tier[0]}</div></div>
+   </div>
+   <div class="flowline" style="margin-top:16px">
+    ${['INTEREST','MINDSET','KNOWLEDGE','PRACTICAL','FIT','SPECIALIZATION'].map(s=>`<span class="st hit">${s}</span>`).join('<span class="ar">──▶</span>')}
+   </div>
+  </div>
+  ${r.techPassed?`
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:18px">
+   <div class="rolecard primary"><div class="rk">RECOMMENDED ROLE — PRIMARY</div><div class="rn">${specById(r.primary).n}</div><div class="rf">${r.fit}%</div><span class="tag ${r.tier[1]==='ok'?'ok':r.tier[1]==='red'?'red':'wh'}">${r.tier[0]}</span></div>
+   <div class="rolecard"><div class="rk">SECONDARY ROLE</div><div class="rn" style="font-size:17px">${specById(r.secondary).n}</div><p class="term" style="margin-top:8px">مسیر پشتیبان با بیشترین هم‌پوشانی ذهنی</p></div>
+   <div class="rolecard"><div class="rk">SUPPORTING SPECIALTY</div><div class="rn" style="font-size:17px">${specById(r.support).n}</div><p class="term" style="margin-top:8px">ارزش cross-training</p></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px" class="panel">
+   <div><div class="sec-label">STRENGTHS</div>${r.strengths.map(s=>`<p class="term" style="margin:6px 0;color:var(--white)">▸ ${s}</p>`).join('')||'<p class="term">—</p>'}</div>
+   <div><div class="sec-label g">DEVELOPMENT AREAS</div>${r.weakCats.map(s=>`<p class="term" style="margin:6px 0">▸ ${esc(s)}</p>`).join('')||'<p class="term">هیچ نقطهٔ ضعف فنی زیر ۷۰٪</p>'}</div>
+   <div style="grid-column:1/-1"><div class="sec-label g">RECOMMENDED LEARNING DIRECTION</div>
+    ${r.learning.map(s=>`<p class="term" style="margin:6px 0;color:#c9c9c4">→ ${esc(s)}</p>`).join('')}</div>
+  </div>`:`
+  <div class="panel" style="margin-top:18px"><span class="tag red">NOT READY — RETAKE ALLOWED</span>
+   <p class="lead" style="margin-top:10px">این یک رد دائمی نیست. مسیر مطالعاتی پیشنهادی شما در بخش verdict ثبت شده — بعد از تقویت، آزمون را با سؤالات جدید تکرار کن.</p></div>`}
+  <div class="panel" style="margin-top:18px">
+   <div class="sec-label">TELEGRAM DELIVERY — بخش ۲۸</div>
+   <p class="term" style="margin-bottom:12px">وضعیت: <span class="tag ${S.tg.status==='sent'?'ok':S.tg.status==='failed'?'red':''}">${S.tg.status.toUpperCase()}</span> · تلاش‌ها: ${S.tg.attempts} · در پروداکشن این گزارش به‌صورت خودکار پس از ثبت نهایی به ربات تلگرام ارسال می‌شود.</p>
+   <details><summary class="mono" style="cursor:pointer;color:var(--gray);font-size:11px;letter-spacing:.14em">PREVIEW MESSAGE</summary>
+    <div class="tgprev" dir="rtl" style="margin-top:12px">${esc(buildTgMessage(r))}</div></details>
+   <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+    <button class="btn sm" id="bSend">${hasTok?'SEND TO TELEGRAM NOW':'SEND (configure token first)'}</button>
+    <button class="btn ghost sm" id="bCopy">COPY MESSAGE</button>
+   </div>
+  </div>
+  <div class="navrow" style="margin-top:22px"><button class="btn ghost" onclick="go('welcome')">◂ HOME</button><span class="term">${esc(S.token.slice(0,20))}…</span></div>
+ </div>`;
+ $('#bSend').onclick=()=>sendTelegram(r);
+ $('#bCopy').onclick=()=>{navigator.clipboard.writeText(buildTgMessage(r)).then(()=>toast('پیام کپی شد.',true))};
+ /* ارسال خودکار به تلگرام پس از نمایش گزارش */
+ if(!S._tgAuto){S._tgAuto=true;save();setTimeout(()=>sendTelegram(r),800)}
+}
+function tgConfigured(){return !!(TG_TOKEN&&TG_CHAT)}
+function buildTgMessage(r){
+ const stMap={'Strong Candidate':'✅ Strong Candidate — Recommended','Recommended':'✅ Recommended','Needs Development':'⚠️ Needs Development','Not Ready':'❌ Not Ready'};
+ const main=r.gate?'این کاندید تفکر تحلیلی و پشتکار قابل‌توجهی نشان داد که او را گزینه‌ای جدی برای مسیر انتخابی می‌سازد.':'بنیهٔ فعلی برای جایگذاری کافی نیست؛ نقشهٔ تقویت صادر شد.';
+ let m=`🛡️ گزارش سنجش تیم Red Team\n\n🎯 کاندید: ${r.name}\n🎓 رشته: ${r.major} | سطح: ${r.level}\n🗓️ تکمیل‌شده: ${new Date(r.updated).toLocaleString('fa-IR')}\n\n━━━━━━━━━━━━━━━━\n`;
+ if(r.techPassed){m+=`🥇 تخصص اصلی: ${specById(r.primary).n}\n   تناسب: ${r.fit}٪ — ${r.tier[0]}\n🥈 تخصص فرعی: ${specById(r.secondary).n}\n${r.support?`🧩 تخصص حمایتی: ${specById(r.support).n}\n`:''}`;}
+ else m+=`❌ آزمون دانش: ${r.tech}٪ — NOT READY\n`;
+ m+=`\n📊 نمرات کلی\nMindset: ${r.mindset} | Technical: ${r.tech} | Practical: ${r.prac} | Problem Solving: ${r.ps}\n\n💪 نقاط قوت: ${r.strengths.join('، ')||'—'}\n📈 نیازمند توسعه: ${r.weakCats.join('، ')||'—'}\n\n${stMap[r.status]||r.status}\n\n💬 ${main}\n\n🔗 مشاهدهٔ پروفایل کامل در داشبورد`;
+ if(m.length>4096)m=m.slice(0,4090)+'…';// محدودیت ۴۰۹۶ کاراکتر تلگرام
+ return m;
+}
+function sendTelegram(r){
+ S.tg.attempts++;
+ if(!tgConfigured()){S.tg.status='failed';S.tg.last='token not configured';save();toast('توکن تلگرام تنظیم نشده.');return}
+ // ارسال از طریق fetch با mode:'no-cors' تا مشکل CORS مرورگر حل شود
+ const url=`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`;
+ const body=new URLSearchParams({chat_id:TG_CHAT,text:buildTgMessage(r),parse_mode:'HTML'});
+ fetch(url,{method:'POST',mode:'no-cors',body:body})
+  .then(()=>{
+    S.tg.status='sent';S.tg.last=now();logTg(r,'sent',now());
+    toast('گزارش به تلگرام ارسال شد ✅',true);
+  })
+  .catch(e=>{
+    S.tg.status='failed';S.tg.last=String(e);logTg(r,'failed',String(e));
+    toast('ارسال ناموفق — در لاگ ثبت شد.');
+  })
+  .finally(()=>save());
+}
+function logTg(r,st,info){const a=dbAll();const c=a.find(x=>x.cid===r.cid);if(c){c.tg={status:st,attempts:S.tg.attempts,last:info};dbSave(a)}}
+
+/* ======================= ۱۸–۲۰. ADMIN ======================= */
+let adminOpen=false,sortKey='fit',sortAsc=false,viewCid=null;
+async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+function renderAdmin(){
+ if(!adminOpen){$('#app').innerHTML=`<div class="wrap fadein" style="max-width:480px"><div class="panel acc">
+  <div class="sec-label">ADMIN ACCESS</div><h2>RESTRICTED</h2>
+  <label class="fl">ADMIN PASSWORD</label><input type="password" id="apw" class="mono">
+  <p class="term" style="margin-top:10px;opacity:.65">demo password: redteam — در پروداکشن: bcrypt/argon2 hash سمت سرور (ADMIN_PASSWORD_HASH)</p>
+  <div class="navrow"><button class="btn ghost" onclick="go(S.step='welcome');renderWelcome()">◂ BACK</button><button class="btn" id="bLogin">AUTHENTICATE ▸</button></div>
+ </div></div>`;
+  $('#apw').focus();
+  const tryL=async()=>{const h=await sha256($('#apw').value);const def=await sha256('redteam');
+   const stored=localStorage.getItem('rt_admin_hash');if(h===def||h===stored){adminOpen=true;sessionStorage.setItem('rt_adm','1');renderAdmin()}else toast('رمز نادرست.')};
+  $('#bLogin').onclick=tryL;$('#apw').onkeydown=e=>{if(e.key==='Enter')tryL()};return}
+ const all=dbAll();const done=all.filter(c=>c.fit!=null);
+ const passed=done.filter(c=>c.techPassed).length, failed=done.length-passed, pending=all.length-done.length;
+ $('#app').innerHTML=`<div class="fadein">
+  <div class="panel acc"><div class="sec-label">ADMIN DASHBOARD // TEAM PLACEMENT</div>
+   <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:center">
+    <h2>CANDIDATE OVERVIEW</h2><button class="btn ghost sm" id="bSeed">LOAD DEMO CANDIDATES</button></div>
+   <div class="statgrid" style="margin-top:16px">
+    <div class="stat"><div class="n">${all.length}</div><div class="l">TOTAL</div></div>
+    <div class="stat"><div class="n" style="color:var(--ok)">${passed}</div><div class="l">PASSED KNOWLEDGE</div></div>
+    <div class="stat"><div class="n" style="color:var(--red)">${failed}</div><div class="l">NOT READY</div></div>
+    <div class="stat"><div class="n">${pending}</div><div class="l">IN PROGRESS</div></div>
+   </div>
+  </div>
+  <div class="panel" style="margin-top:16px"><div class="sec-label">SPECIALIZATION DISTRIBUTION</div>
+   <div id="dist"></div><div id="balance" style="margin-top:10px"></div></div>
+  <div class="panel" style="margin-top:16px;overflow-x:auto"><div class="sec-label">CANDIDATE RANKING — click header to sort · click row to open profile</div>
+   <table class="tbl"><thead><tr>${[['cid','CANDIDATE'],['primary','PRIMARY'],['secondary','SECONDARY'],['mindset','MINDSET'],['tech','TECHNICAL'],['prac','PRACTICAL'],['fit','FIT ▾'],['status','STATUS']].map(([k,l])=>`<th data-k="${k}">${l}</th>`).join('')}</tr></thead>
+   <tbody id="tbody"></tbody></table></div>
+  <div class="panel" style="margin-top:16px"><div class="sec-label g">TELEGRAM SETTINGS (هاردکد در ابتدای اسکریپت — برای تغییر، TG_TOKEN و TG_CHAT را ویرایش کنید)</div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div><label class="fl">BOT TOKEN</label><input type="text" value="${esc(TG_TOKEN)}" readonly></div>
+    <div><label class="fl">CHAT ID</label><input type="text" value="${esc(TG_CHAT)}" readonly></div></div>
+   <p class="term" style="margin-top:8px;opacity:.6">ارسال از طریق Bot API با <code>fetch(mode:'no-cors')</code> انجام می‌شود. این تنظیمات در بالای فایل اسکریپت قابل ویرایش است.</p>
+  </div>
+  <div class="navrow" style="margin-top:20px"><button class="btn ghost" onclick="adminOpen=false;go('welcome')">◂ EXIT ADMIN</button><span></span></div>
+ </div>`;
+ $('#bSeed').onclick=()=>{seedDemo();renderAdmin()};
+ const sorted=[...done].sort((a,b)=>(a[sortKey]>b[sortKey]?1:-1)*(sortAsc?1:-1));
+ $('#tbody').innerHTML=sorted.map(c=>`<tr class="rrow" data-c="${c.cid}">
+  <td>${esc(c.name)}<br><span style="color:var(--gray);font-size:10px">${c.cid}</span></td>
+  <td>${specById(c.primary)?.n||'—'}</td><td>${c.secondary?specById(c.secondary).n:'—'}</td>
+  <td>${c.mindset}</td><td style="color:${c.tech>=70?'var(--ok)':'var(--red)'}">${c.tech}</td>
+  <td>${c.prac}</td><td style="color:var(--red);font-weight:700">${c.fit}</td>
+  <td><span class="tag ${c.status==='Strong Candidate'?'ok':c.status==='Needs Development'?'red':'wh'}">${c.status}</span></td></tr>`).join('');
+ document.querySelectorAll('th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortKey===k)sortAsc=!sortAsc;else{sortKey=k;sortAsc=false}renderAdmin()});
+ document.querySelectorAll('.rrow').forEach(r=>r.onclick=()=>openDrawer(r.dataset.c));
+ // توزیع + توازن تیم (بخش ۱۹)
+ const counts={};done.forEach(c=>counts[c.primary]=(counts[c.primary]||0)+1);
+ const mx=Math.max(1,...Object.values(counts));
+ $('#dist').innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([id,n])=>`<div class="barrow"><span class="bl">${specById(id)?.n||id}</span><div class="btrack"><div class="bfill red" style="width:${n/mx*100}%"></div></div><span class="bv">${n}</span></div>`).join('')||'<p class="term">هیچ کاندید تکمیل‌شده‌ای نیست.</p>';
+ const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+ if(top&&done.length>=3&&top[1]/done.length>0.35){
+  const weakSpecs=SPECS.filter(s=>!counts[s.id]).map(s=>s.id);
+  const cands=done.filter(c=>weakSpecs.includes(c.secondary)&&c.fit>=65).slice(0,3);
+  $('#balance').innerHTML=`<div style="border:1px solid var(--red-dim);border-radius:5px;padding:14px 16px;background:rgba(227,30,39,.05)">
+   <span class="tag red">TEAM BALANCE WARNING</span>
+   <p class="term" style="margin-top:8px">تمرکز بیش‌ازحد روی <b style="color:var(--white)">${specById(top[0]).n}</b> (${Math.round(top[1]/done.length*100)}٪ از کاندیدها). کاندیدهای با تناسب ثانویهٔ قوی در تخصص‌های کم‌نماینده: ${cands.map(c=>esc(c.name)+' → '+specById(c.secondary).n).join(' · ')||'— بررسی دستی پیشنهاد می‌شود.'}</p></div>`;
+ }else $('#balance').innerHTML='';
+}
+function openDrawer(cid){
+ const c=dbAll().find(x=>x.cid===cid);if(!c)return;viewCid=cid;
+ const d=document.createElement('div');d.className='drawer open';
+ const rows=[['CANDIDATE',`${c.name} · ${c.cid}`],['BACKGROUND',`${c.major} · ${c.level}`],['MINDSET DETAIL',Object.entries(c.mindsetDetail||{}).map(([k,v])=>`<span class="tag ${dimTier(v)[1]==='red'?'red':dimTier(v)[1]==='ok'?'ok':''}">${DIM_FA[k]} ${v}</span>`).join(' ')],['TECHNICAL',(c.techCats||[]).map(t=>`<span class="tag ${t.score>=70?'ok':'red'}">${t.cat} ${t.score}%</span>`).join(' ')],['PRACTICAL DIMS',Object.entries({}).length?'':'—'],['PRIMARY',`${specById(c.primary)?.n} — ${c.fit}% ${c.tier[0]}`],['SECONDARY',c.secondary?specById(c.secondary).n:'—'],['SUPPORT',c.support?specById(c.support).n:'—'],['STATUS',c.status],['LEARNING',(c.learning||[]).map(l=>'→ '+l).join('<br>')],['TELEGRAM',`${c.tg?.status||'pending'} · ${c.tg?.attempts||0} attempts`]];
+ d.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div class="sec-label">CANDIDATE PROFILE // ${c.cid}</div>
+  <button class="btn ghost sm" id="dX">✕</button></div>
+  ${rows.map(([k,v])=>`<div style="margin:16px 0"><div class="sec-label g">${k}</div><div class="term" style="color:var(--white)">${v||'—'}</div></div>`).join('')}
+  <button class="btn sm" id="dRetry" style="margin-top:10px">↻ RESEND TO TELEGRAM</button>`;
+ document.body.appendChild(d);$('#dX')||0;
+ d.querySelector('#dX').onclick=()=>d.remove();
+ d.querySelector('#dRetry').onclick=()=>{
+  const body=new URLSearchParams({chat_id:TG_CHAT,text:buildTgMessage(c),parse_mode:'HTML'});
+  fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`,{method:'POST',mode:'no-cors',body})
+   .then(()=>{const a=dbAll();const x=a.find(v=>v.cid===cid);x.tg={status:'sent',attempts:(x.tg?.attempts||0)+1,last:now()};dbSave(a);toast('ارسال مجدد اجرا شد ✅',true)})
+   .catch(()=>toast('ارسال مجدد ناموفق'))};
+ d.onclick=e=>{if(e.target===d)d.remove()};
+}
+/* داده‌های نمونه برای حس زندهٔ داشبورد */
+function seedDemo(){const names=[['سارا محمدی','مهندسی نرم‌افزار','Intermediate'],['amir hosseini','IT','Beginner'],['نگار کریمی','مهندسی کامپیوتر','Advanced'],['d.rahmani','برق','Intermediate'],['مهدی تهرانی','علوم کامپیوتر','Beginner']];
+ const sp=SPECS.map(s=>s.id);let n=0;
+ for(const[nm,mj,lv]of names){const pick=()=>sp[Math.floor(Math.random()*sp.length)];
+  const mk=()=>{const o={};DIMS.forEach(([d])=>o[d]=45+Math.floor(Math.random()*50));return o};
+  const p=pick();const tc=KB[p].cats.map(c=>({cat:c,score:35+Math.floor(Math.random()*62)}));
+  const tech=Math.round(tc.reduce((s,c)=>s+c.score,0)/tc.length);
+  const msD=mk();const mindset=Math.round(Object.values(msD).reduce((a,b)=>a+b,0)/8);
+  const prac=40+Math.floor(Math.random()*58);const fit=clamp(Math.round(mindset*.2+80*.15+tech*.25+prac*.3+msD.problem_solving*.1),20,97);
+  const gate=tech>=70&&prac>=65;const tier=fit>=85?'EXCELLENT FIT':fit>=75?'STRONG FIT':fit>=65?'POTENTIAL FIT':fit>=50?'DEVELOPING':'POOR FIT';
+  const pool=prelimRankFor(msD,sp.filter(x=>x!==p));
+  const rec={cid:uid(),created:now(),updated:now(),name:nm,major:mj,level:lv,mindset,mindsetDetail:msD,tech,techCats:tc,prac,ps:msD.problem_solving,fit,tier:[tier],gate,primary:p,secondary:pool[0],support:pool[1],
+   status:!gate?'Needs Development':fit>=80?'Strong Candidate':fit>=65?'Recommended':'Needs Development',strengths:[DIM_FA.analytical,'پشتکار'],weakCats:tc.filter(c=>c.score<70).map(c=>c.cat).slice(0,2),learning:['تمرین سناریومحور','مطالعهٔ عمیق‌تر پروتکل‌ها'],techPassed:tech>=70,tg:{status:Math.random()<.7?'sent':'failed',attempts:1,last:now()}};
+  dbUpsert(rec);n++}
+ toast(`${n} کاندید نمونه اضافه شد.`,true)}
+function prelimRankFor(ms,ids){const w=[.5,.3,.2];const avg=d=>ms[d]||50;
+ return ids.map(id=>{const s=specById(id);let v=0;s.dims.forEach((dd,i)=>v+=w[i]*avg(dd));return{id,score:Math.round(v)}}).sort((a,b)=>b.score-a.score).map(r=>r.id)}
+
+/* ---------- بوت ---------- */
+S=loadS()||freshState();
+if(!S.token)S.token=mkToken();
+drawStages();R[S.step]();
+</script>
+</body>
+</html>
